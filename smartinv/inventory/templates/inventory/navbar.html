@@ -1,0 +1,125 @@
+<nav class="navbar">
+  <div class="navbar-title">Warehouse <span>Manager</span></div>
+  <div class="navbar-links">
+    <a href="/" class="nav-link">🏠 Home</a>
+    <a href="/inventory/dashboard/" class="nav-link">📊 Dashboard</a>
+    <a href="/admin/" class="nav-link">⚙️ Admin</a>
+  </div>
+</nav>
+
+
+<style>
+  /* NAVBAR */
+.navbar {
+    background: linear-gradient(90deg, #141e30, #243b55);
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    color: #ecf0f1;
+}
+.navbar-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #6ab1f5;
+}
+
+.navbar-title span {
+    color: #c471ed;
+}
+
+.navbar-links {
+    display: flex;
+    gap: 25px;
+}
+
+.nav-link {
+    color: #ecf0f1;
+    font-weight: bold;
+    text-decoration: none;
+    position: relative;
+    font-size: 16px;
+    padding-bottom: 4px;
+    transition: color 0.3s ease;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 2px;
+    width: 0%;
+    background-color: #6ab1f5;
+    transition: width 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #6ab1f5;
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}
+/* Highlight Active Link */
+.nav-link.active {
+    color: #6ab1f5;
+}
+.nav-link:hover {
+    color: #6ab1f5;
+    background: rgba(255, 255, 255, 0.1);
+}
+@media(max-width: 768px) {
+    .nav-link {
+        font-size: 14px;
+        padding: 5px 8px;
+    }
+    .navbar-title {
+        font-size: 16px;
+    }
+}
+
+@media(max-width: 480px) {
+    .nav-link {
+        font-size: 13px;
+        padding: 4px 6px;
+    }
+    .navbar-links {
+        gap: 10px;
+    }
+}
+/* BUTTONS */
+.button-primary {
+    background: linear-gradient(to right, #6a11cb, #2575fc);
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s ease;
+}
+
+.button-primary:hover {
+    background: linear-gradient(to right, #2575fc, #6a11cb);
+}
+
+.file-upload-btn {
+    background: #3498db;
+    color: white;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: background 0.3s ease;
+}
+
+.file-upload-btn:hover {
+    background: #2980b9;
+}
+
+</style>

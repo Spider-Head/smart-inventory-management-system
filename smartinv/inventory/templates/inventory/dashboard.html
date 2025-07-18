@@ -1,0 +1,117 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Inventory Dashboard</title>
+    <link rel="stylesheet" href="{% static 'inventory/styles.css' %}">
+</head>
+<body>
+
+    {% include 'inventory/navbar.html' %}
+
+    <div class="dashboard-container">
+        <h1>📊 Inventory Dashboard</h1>
+
+        <!-- Products About to Expire -->
+        <h2>⚠️ Products About to Expire</h2>
+        {% if about_to_expire %}
+            <table class="styled-table">
+                <tr><th>Name</th><th>PID</th><th>Expiry Date</th></tr>
+                {% for p in about_to_expire %}
+                <tr><td>{{ p.name }}</td><td>{{ p.pid }}</td><td>{{ p.expiry_date }}</td></tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            <p>No products expiring soon.</p>
+        {% endif %}
+
+        <!-- Expired Products -->
+        <h2>❌ Expired Products</h2>
+        {% if expired_products %}
+            <table class="styled-table">
+                <tr><th>Name</th><th>PID</th><th>Expiry Date</th></tr>
+                {% for p in expired_products %}
+                <tr>
+                    <td>{{ p.name }}</td>
+                    <td>{{ p.pid }}</td>
+                    <td class="alert">{{ p.expiry_date }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            <p>All products are within expiry date.</p>
+        {% endif %}
+
+        <!-- Low/Zero Stock -->
+        <h2>📉 Low/Zero Stock</h2>
+        {% if low_stock %}
+            <table class="styled-table">
+                <tr><th>Product Name</th><th>Total Stock</th></tr>
+                {% for item in low_stock %}
+                <tr><td>{{ item.name }}</td><td>{{ item.total_quantity }}</td></tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            <p>All stocks are sufficient.</p>
+        {% endif %}
+
+        <!-- Least Stock Category -->
+        <h2>📦 Category with Least Stock</h2>
+        {% if least_category %}
+            <p class="alert">
+                {{ least_category.product__category__name }} — {{ least_category.product_count }} products,
+                total quantity: <strong>{{ least_category.total }}</strong> item{{ least_category.total|pluralize }}
+            </p>
+        {% else %}
+            <p>No stock data.</p>
+        {% endif %}
+
+        <!-- Predicted Stockouts -->
+        <h2>🔮 Predicted Stockouts & Insights</h2>
+        {% if predicted_outs %}
+            <table class="styled-table">
+                <tr>
+                    <th>PID</th>
+                    <th>Stock</th>
+                    <th>Daily Avg</th>
+                    <th>📊 Stock Insights</th>
+                </tr>
+                {% for o in predicted_outs %}
+                <tr>
+                    <td>{{ o.pid }}</td>
+                    <td>{{ o.stock }}</td>
+                    <td>{{ o.daily_avg }}</td>
+                    <td class="alert">
+                        {% if o.stock == 0 %}
+                            ❌ Out of stock – Urgent reorder
+                        {% elif o.daily_avg == 0 %}
+                            ℹ️ No recent usage – Review demand
+                        {% elif o.days_left <= 3 %}
+                            ⚠️ Low stock – Reorder in next {{ o.days_left }} days
+                        {% elif o.days_left <= 7 %}
+                            ⏳ Moderate – Consider reordering in {{ o.days_left }} days
+                        {% else %}
+                            ✅ Sufficient for ~{{ o.days_left }} days
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            <p>No stockout risk detected.</p>
+        {% endif %}
+
+        <!-- Daily Consumption Chart -->
+        <h2>📈 Daily Consumption Chart</h2>
+        {% if chart_base64 %}
+            <img src="data:image/png;base64,{{ chart_base64 }}" alt="Chart" style="max-width: 100%; height: auto;">
+        {% else %}
+            <p>No consumption data.</p>
+        {% endif %}
+
+        <br><br>
+        <a href="/" class="button-primary">⬅ Back to Scanner</a>
+    </div>
+
+</body>
+</html>

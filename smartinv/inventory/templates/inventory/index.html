@@ -1,0 +1,55 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Smart Inventory QR Scanner</title>
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <link rel="stylesheet" href="{% static 'inventory/styles.css' %}">
+</head>
+<body>
+
+  {% include 'inventory/navbar.html' %}
+
+  <div class="scanner-container">
+    <h1>QR Code Scanner</h1>
+    <p class="subtitle">Scan products to track inventory movements</p>
+
+    <div class="scanner-card">
+      <h2>QR Code Scanner</h2>
+      <div id="reader"></div>
+      <br>
+      <p>Or upload QR code image:</p>
+      <input type="file" id="upload-btn">
+    </div>
+
+    <div class="table-container">
+      <h3>Scanned Products</h3>
+      <table id="product-table">
+        <thead>
+          <tr>
+            <th>Product Name</th>
+            <th>PID</th>
+            <th>Category</th>
+            <th>Added Date</th>
+            <th>Expiry Date</th>
+            <th>Quantity</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="popup" class="popup">
+    <p>Product already exists. Remove?</p>
+    <button onclick="confirmRemove(true)">Yes</button>
+    <button onclick="confirmRemove(false)">No</button>
+  </div>
+
+  <script>
+    document.cookie = "csrftoken={{ csrf_token }}";
+  </script>
+  <script src="{% static 'inventory/script.js' %}"></script>
+
+</body>
+</html>
