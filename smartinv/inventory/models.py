@@ -11,7 +11,7 @@ import uuid
 class ProductCategory(models.Model):
     category_id = models.CharField(max_length=20, unique=True)
     name = models.CharField(max_length=100)
-
+    image = models.ImageField(upload_to='category_images/', null=True, blank=True)  # New image field
     def __str__(self):
         return f"{self.name} ({self.category_id})"
 
@@ -24,6 +24,7 @@ class Product(models.Model):
     expiry_date = models.DateField()
     added_date = models.DateField(auto_now_add=True)
     qr_code = models.ImageField(upload_to='qr_codes/', blank=True, null=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)  # New field
 
     def save(self, *args, **kwargs):
         if not self.pid:

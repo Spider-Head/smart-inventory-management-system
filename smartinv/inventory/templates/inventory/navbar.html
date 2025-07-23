@@ -1,125 +1,159 @@
-<nav class="navbar">
-  <div class="navbar-title">Warehouse <span>Manager</span></div>
-  <div class="navbar-links">
-    <a href="/" class="nav-link">🏠 Home</a>
-    <a href="/inventory/dashboard/" class="nav-link">📊 Dashboard</a>
-    <a href="/admin/" class="nav-link">⚙️ Admin</a>
-  </div>
-</nav>
-
-
-<style>
-  /* NAVBAR */
-.navbar {
-    background: linear-gradient(90deg, #141e30, #243b55);
-    padding: 15px 30px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    color: #ecf0f1;
-}
-.navbar-title {
-    font-size: 20px;
-    font-weight: bold;
-    color: #6ab1f5;
-}
-
-.navbar-title span {
-    color: #c471ed;
-}
-
-.navbar-links {
-    display: flex;
-    gap: 25px;
-}
-
-.nav-link {
-    color: #ecf0f1;
-    font-weight: bold;
-    text-decoration: none;
-    position: relative;
-    font-size: 16px;
-    padding-bottom: 4px;
-    transition: color 0.3s ease;
-}
-
-.nav-link::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    height: 2px;
-    width: 0%;
-    background-color: #6ab1f5;
-    transition: width 0.3s ease;
-}
-
-.nav-link:hover {
-    color: #6ab1f5;
-}
-
-.nav-link:hover::after {
-    width: 100%;
-}
-/* Highlight Active Link */
-.nav-link.active {
-    color: #6ab1f5;
-}
-.nav-link:hover {
-    color: #6ab1f5;
-    background: rgba(255, 255, 255, 0.1);
-}
-@media(max-width: 768px) {
-    .nav-link {
-        font-size: 14px;
-        padding: 5px 8px;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fixed Navbar</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      padding-top: 70px;
+      overflow-x: hidden;
     }
+
+    .navbar {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: linear-gradient(90deg, #141e30, #243b55);
+      padding: 15px 30px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      color: #ecf0f1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1000;
+    }
+
     .navbar-title {
-        font-size: 16px;
+      font-family: "Playfair Display", serif;
+      font-weight: 700;
+      font-size: 28px;
+      letter-spacing: 1px;
+      color: #6ab1f5;
+      margin-left: 20px;
+      transition: transform 0.3s ease;
     }
-}
+    .navbar-title:hover{
+      transform: scale(1.1);
+    }
 
-@media(max-width: 480px) {
-    .nav-link {
-        font-size: 13px;
-        padding: 4px 6px;
+    .navbar-title span {
+      color: #c471ed;
     }
+
+    .hamburger {
+      font-size: 26px;
+      color: white;
+      cursor: pointer;
+      margin-right: 60px;
+      display: block;
+      user-select: none;
+      transition: transform 0.5s ease, color 0.5s ease;
+    }
+
+    .hamburger:hover {
+    transform: scale(1.1);
+    color: #c9dced;
+    }
+
     .navbar-links {
-        gap: 10px;
+      display: none !important;
     }
-}
-/* BUTTONS */
-.button-primary {
-    background: linear-gradient(to right, #6a11cb, #2575fc);
-    color: white;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background 0.3s ease;
-}
 
-.button-primary:hover {
-    background: linear-gradient(to right, #2575fc, #6a11cb);
-}
+    .mobile-menu {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 240px;
+      height: 100%;
+      background: linear-gradient(180deg,rgb(10, 96, 104),rgb(135, 206, 201));
+      padding: 90px 20px 20px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: -2px 0 8px rgba(0, 0, 0, 0.3);
+      transform: translateX(100%);
+      transition: transform 0.4s ease-in-out;
+      z-index: 999;
+    }
 
-.file-upload-btn {
-    background: #3498db;
-    color: white;
-    padding: 10px 16px;
-    border: none;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    margin-top: 15px;
-    transition: background 0.3s ease;
-}
+    .mobile-menu.show {
+      transform: translateX(0%);
+    }
 
-.file-upload-btn:hover {
-    background: #2980b9;
-}
+    .mobile-menu a {
+      color: #f0f0f0;
+      font-weight: bold;
+      text-decoration: none;
+      padding: 10px 15px;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+      position: relative;
+    }
 
-</style>
+    .mobile-menu a::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 4px;
+      background: #c6ffdd;
+      border-radius: 0 4px 4px 0;
+      transform: scaleY(0);
+      transition: transform 0.3s ease;
+    }
+
+    .mobile-menu a:hover::before,
+    .mobile-menu a.active::before {
+      transform: scaleY(1);
+    }
+
+    .mobile-menu a:hover {
+      background: rgba(0, 0, 0, 0.08);
+      color: #ffffff;
+      transform: scale(1.03);
+    }
+
+    .mobile-menu a.active {
+      background-color: rgba(0, 0, 0, 0.12);
+      color: #ffffff;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="navbar-title">Warehouse <span>Manager</span></div>
+    <div id="hamburger" class="hamburger" onclick="toggleMenu()">☰</div>
+  </nav>
+
+  <div id="mobileMenu" class="mobile-menu">
+    <a href="/" class="{% if active_page == 'home' %}active{% endif %}">🏠 Home</a>
+    <a href="/inventory/dashboard/" class="{% if active_page == 'dashboard' %}active{% endif %}">📊 Dashboard</a>
+    <a href="/admin/" class="{% if active_page == 'admin' %}active{% endif %}">🛡️ Admin</a>
+  </div>
+
+  <script>
+  function toggleMenu() {
+    const menu = document.getElementById('mobileMenu');
+    const icon = document.querySelector('.hamburger');
+
+    menu.classList.toggle('show');
+
+    // Smooth transition of icon
+    if (menu.classList.contains('show')) {
+      icon.classList.add('close');
+      icon.textContent = '✕';
+    } else {
+      icon.classList.remove('close');
+      icon.textContent = '☰';
+    }
+  }
+</script>
+
+</body>
+</html>

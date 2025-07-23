@@ -4,7 +4,7 @@ from .models import Product, ProductCategory, WarehouseStock, InventoryLog
 
 @admin.register(ProductCategory)
 class ProductCategoryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category_id')
+    list_display = ('name', 'category_id', 'image')
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):

@@ -1,0 +1,18 @@
+<!-- base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Warehouse Manager{% endblock %}</title>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- NAVBAR -->
+    {% include 'inventory/navbar.html' with active_page=active_page %}
+    
+    <!-- PAGE CONTENT -->
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

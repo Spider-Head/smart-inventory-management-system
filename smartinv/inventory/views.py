@@ -5,7 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 # 👉 Renders the scanner page
 def home_view(request):
-    return render(request, 'inventory/index.html')
+    return render(request, 'inventory/index.html', {'active_page': 'home'})
 
 # 👉 Fetch product details by PID (triggered by QR scan)
 @csrf_exempt
@@ -28,7 +28,7 @@ def get_product_by_pid(request, pid):
             'category': product.category.name,
             'added_date': product.added_date.strftime('%Y-%m-%d'),
             'expiry_date': product.expiry_date.strftime('%Y-%m-%d'),
-            'quantity': stock.quantity,
+            "price": str(product.price),
         }
         return JsonResponse(data)
 
@@ -84,33 +84,13 @@ def get_all_warehouse_stock(request):
             'category': stock.product.category.name,
             'added_date': stock.product.added_date.strftime('%Y-%m-%d'),
             'expiry_date': stock.product.expiry_date.strftime('%Y-%m-%d'),
-            'quantity': stock.quantity,
+            'price': str(stock.product.price), 
         }
         for stock in stocks
     ]
     return JsonResponse(data, safe=False)
 
 
-from django.utils.timezone import now
-from django.db.models import Sum
-from .models import Product, WarehouseStock, InventoryLog
-from .utils import (
-    get_about_to_expire_products,
-    get_low_or_zero_stock,
-    get_least_stock_category,
-    predict_stockouts,
-    get_consumption_chart_base64
-)
-
-def dashboard_view(request):
-    context = {
-        "about_to_expire": get_about_to_expire_products(),
-        "low_stock": get_low_or_zero_stock(),
-        "least_category": get_least_stock_category(),
-        "predicted_outs": predict_stockouts(),
-        "chart_base64": get_consumption_chart_base64()
-    }
-    return render(request, "inventory/dashboard.html", context)
 
 from .utils import (
     get_about_to_expire_products,
@@ -128,6 +108,8 @@ def dashboard_view(request):
         "least_category": get_least_stock_category(),
         "predicted_outs": predict_stockouts(),
         "chart_base64": get_consumption_chart_base64(),
-        "expired_products": get_expired_products(),  # ✅ New key
+        "expired_products": get_expired_products(),
+        "active_page": "dashboard"   # ✅ Add this line
     }
     return render(request, "inventory/dashboard.html", context)
+

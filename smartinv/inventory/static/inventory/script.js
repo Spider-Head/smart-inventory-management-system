@@ -19,7 +19,7 @@ function onScanSuccess(decodedText) {
                             <td>${data.category}</td>
                             <td>${data.added_date}</td>
                             <td>${data.expiry_date}</td>
-                            <td>${data.quantity}</td>
+                            <td>${data.price}</td>
                         </tr>`;
                     document.querySelector("#product-table tbody").insertAdjacentHTML('beforeend', row);
                 } else {
@@ -100,7 +100,7 @@ window.addEventListener("DOMContentLoaded", () => {
                         <td>${item.category}</td>
                         <td>${item.added_date}</td>
                         <td>${item.expiry_date}</td>
-                        <td>${item.quantity}</td>
+                        <td>₹ ${item.price}</td>
                     </tr>`;
                 document.querySelector("#product-table tbody").insertAdjacentHTML('beforeend', row);
             });

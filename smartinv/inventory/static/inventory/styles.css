@@ -1,112 +1,94 @@
+/* Global Styles */
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #ecf0f1;
+  background: #f8f9fa;
   margin: 0;
   padding: 0;
-}
-
-h1, h2, h3 {
   color: #2c3e50;
-  margin-bottom: 10px;
 }
-
-
-.subtitle {
-  color: #95a5a6;
-  font-size: 1.1rem;
-  margin-bottom: 25px;
-  font-weight: 500;
-}
-
-.scanner-container {
+h1{
+    font-weight: 700;
+  color: #34495e;
   text-align: center;
-  padding: 40px 20px;
+  margin-bottom: 20px;
+}
+h2, h3 {
+  font-weight: 700;
+  color: #34495e;
+  text-align: left;
+  margin-bottom: 20px;
 }
 
-.scanner-card {
+/* Dashboard Container */
+.dashboard-container {
+  max-width: 1200px;
+  margin: 30px auto;
+  padding: 20px;
   background: #ffffff;
-  width: 90%;
-  max-width: 500px;
-  margin: 0 auto 40px auto;
-  padding: 35px 25px;
-  border-radius: 18px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-  border: 1px solid #ecf0f1;
+  border-radius: 20px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+  transition: box-shadow 0.4s ease;
 }
 
-.scan-btn {
-  background: linear-gradient(90deg, #6a11cb, #2575fc);
-  border: none;
-  padding: 14px 30px;
-  border-radius: 30px;
-  color: white;
-  font-size: 1.1rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+.dashboard-container:hover {
+  box-shadow: 0 25px 45px rgba(0, 0, 0, 0.2);
 }
 
-.scan-btn:hover {
-  background: linear-gradient(90deg, #2575fc, #6a11cb);
-  transform: scale(1.05);
-}
-
-#upload-btn {
-  display: inline-block;
-  padding: 12px 20px;
-  border: none;
-  border-radius: 12px;
-  margin-top: 15px;
-  background: #3498db;
-  color: white;
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.3s ease, transform 0.2s ease;
-}
-
-#upload-btn:hover {
-  background: #2980b9;
-  transform: scale(1.03);
-}
-
-
+/* Table Container */
 .table-container {
-  margin-top: 30px;
+  margin-top: 40px;
 }
 
+/* Table Styling */
 table {
-  width: 90%;
+  width: 95%;
   margin: 0 auto;
-  border-collapse: collapse;
-  border-radius: 10px;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 15px;
   overflow: hidden;
   background: white;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease;
 }
 
+table:hover {
+  transform: scale(1.01);
+}
+
+/* Table Headers */
 th {
-  background: #2c3e50;
-  color: white;
-  font-weight: 600;
-  padding: 12px;
+  background: linear-gradient(135deg, #2c3e50, #34495e);
+  color: #ffffff;
+  font-weight: bold;
+  padding: 16px;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border-right: 1px solid rgba(255,255,255,0.2);
 }
 
+/* Table Data Cells */
 td {
-  padding: 15px;
+  padding: 14px 18px;
   text-align: center;
-  border-bottom: 1px solid #ddd;
+  font-size: 0.95rem;
+  color: #2c3e50;
+  background: #fdfdfd;
+  border-bottom: 1px solid #e0e0e0;
 }
 
+/* Row Effects */
 tr:nth-child(even) {
   background: #f9f9f9;
 }
 
 tr:hover {
   background: #e0f7fa;
+  transition: background 0.2s ease;
 }
 
+/* Popup Box */
 .popup {
   display: none;
   position: fixed;
@@ -115,53 +97,71 @@ tr:hover {
   transform: translateX(-50%);
   width: 300px;
   padding: 20px;
-  background: #fff;
+  background: #ffffff;
   border: 2px solid #4caf50;
   border-radius: 15px;
   box-shadow: 0 8px 20px rgba(0,0,0,0.3);
   z-index: 999;
 }
-.dashboard-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
+
+/* Alert Styling */
+.alert {
+  color: #e74c3c;
+  font-weight: bold;
+  text-align: center;
 }
 
+/* Styled Table */
 .styled-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 25px 0;
-    font-size: 1rem;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 25px 0;
+  font-size: 1rem;
+  border-radius: 15px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
 .styled-table thead tr {
-    background-color: #2c3e50;
-    color: #ffffff;
-    text-align: left;
+  background: linear-gradient(135deg, #1e3a8a, #2c3e50);
+  color: #ffffff;
+  text-align: center;
 }
 
 .styled-table th,
 .styled-table td {
-    padding: 12px 15px;
-    border-bottom: 1px solid #dddddd;
+  padding: 15px 20px;
+  border-bottom: 1px solid #eeeeee;
 }
 
 .styled-table tr:nth-of-type(even) {
-    background-color: #f3f3f3;
+  background-color: #f3f3f3;
 }
 
 .styled-table tr:hover {
-    background-color: #f1f1f1;
+  background-color: #f1f1f1;
+  transform: scale(1.01);
+  transition: all 0.3s ease;
 }
 
-h2 {
-    color: #2c3e50;
-    font-weight: 600;
-    margin-top: 40px;
+/* 3D Hover Button (Optional for actions) */
+.button-3d {
+  display: inline-block;
+  background: linear-gradient(135deg, #1e3a8a, #2563eb);
+  color: white;
+  padding: 12px 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 50px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.alert {
-    color: red;
-    font-weight: bold;
+.button-3d:hover {
+  background: linear-gradient(135deg, #2563eb, #1e3a8a);
+  transform: translateY(-4px) scale(1.05);
 }
