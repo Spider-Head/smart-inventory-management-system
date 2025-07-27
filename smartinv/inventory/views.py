@@ -6,6 +6,8 @@ from django.views.decorators.csrf import csrf_exempt
 # 👉 Renders the scanner page
 def home_view(request):
     return render(request, 'inventory/index.html', {'active_page': 'home'})
+def landing_page(request):
+    return render(request, 'landing.html')
 
 # 👉 Fetch product details by PID (triggered by QR scan)
 @csrf_exempt

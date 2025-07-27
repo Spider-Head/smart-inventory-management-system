@@ -1,12 +1,12 @@
 const scannedPIDs = new Set();
 let currentScan = null;
 
+// Handle scan success
 function onScanSuccess(decodedText) {
     if (scannedPIDs.has(decodedText)) {
         currentScan = decodedText;
-        document.getElementById('popup').style.display = 'block';
+        togglePopup(true);
     } else {
-        // ✅ Use GET param to signal non-duplicate scan
         fetch(`/inventory/product/${decodedText}/?dup=false`)
             .then(res => res.json())
             .then(data => {
@@ -19,18 +19,20 @@ function onScanSuccess(decodedText) {
                             <td>${data.category}</td>
                             <td>${data.added_date}</td>
                             <td>${data.expiry_date}</td>
-                            <td>${data.price}</td>
+                            <td>₹ ${data.price}</td>
                         </tr>`;
                     document.querySelector("#product-table tbody").insertAdjacentHTML('beforeend', row);
                 } else {
                     alert("Product not found");
                 }
-            });
+            })
+            .catch(() => alert("Error retrieving product."));
     }
 }
 
+// Handle popup confirmation
 function confirmRemove(confirm) {
-    document.getElementById('popup').style.display = 'none';
+    togglePopup(false);
 
     if (confirm && currentScan) {
         fetch(`/inventory/remove/${currentScan}/`, {
@@ -42,14 +44,11 @@ function confirmRemove(confirm) {
         .then(res => res.json())
         .then(data => {
             const row = document.querySelector(`tr[data-id="${currentScan}"]`);
-
             if (data.quantity !== undefined) {
                 if (data.quantity > 0) {
-                    // ✅ Update quantity shown in table
                     const quantityCell = row.querySelector("td:last-child");
-                    quantityCell.textContent = data.quantity;
+                    quantityCell.textContent = `₹ ${data.quantity}`;
                 } else {
-                    // ✅ Quantity became zero: remove row from table
                     if (row) row.remove();
                     scannedPIDs.delete(currentScan);
                 }
@@ -66,9 +65,7 @@ function confirmRemove(confirm) {
     currentScan = null;
 }
 
-
-
-
+// Get CSRF token from cookie
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -83,16 +80,31 @@ function getCookie(name) {
     return cookieValue;
 }
 
-// Initialize QR Scanner
-new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 }).render(onScanSuccess);
+// Show or hide popup and apply blur effect
+function togglePopup(show) {
+    const popup = document.getElementById('popup');
+    const overlay = document.getElementById('popup-overlay'); // use correct ID
+    const background = document.querySelector('.scanner-container');
+
+    if (show) {
+        popup.classList.add('active');
+        overlay.classList.add('active'); // show the overlay
+        background.classList.add('blurred');
+    } else {
+        popup.classList.remove('active');
+        overlay.classList.remove('active'); // hide the overlay
+        background.classList.remove('blurred');
+    }
+}
 
 
+// Load already scanned products on page load
 window.addEventListener("DOMContentLoaded", () => {
     fetch("/inventory/warehouse/")
         .then(res => res.json())
         .then(data => {
             data.forEach(item => {
-                scannedPIDs.add(item.pid);  // So it doesn't re-scan & duplicate
+                scannedPIDs.add(item.pid);
                 const row = `
                     <tr data-id="${item.pid}">
                         <td>${item.name}</td>
@@ -104,5 +116,9 @@ window.addEventListener("DOMContentLoaded", () => {
                     </tr>`;
                 document.querySelector("#product-table tbody").insertAdjacentHTML('beforeend', row);
             });
-        });
+        })
+        .catch(err => console.error("Failed to load initial data:", err));
 });
+
+// Initialize QR scanner
+new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 }).render(onScanSuccess);

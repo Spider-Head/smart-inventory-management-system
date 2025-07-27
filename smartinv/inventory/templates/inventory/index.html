@@ -6,15 +6,16 @@
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
   <link rel="stylesheet" href="{% static 'inventory/styles.css' %}">
   <style>
-  :root {
-  --primary: #1e3a8a;
-  --secondary: #0f766e;
-  --info: #0e7490;
-  --accent: #6a11cb;
-  --accent2: #2575fc;
-  --danger: #ff5f6d;
-  --warning: #ffc371;
-  --light: #f9fafb;
+
+:root {
+  --primary: #1e3a8a;      /* Deep blue */
+  --secondary: #0f766e;    /* Teal */
+  --info: #0e7490;         /* Slightly lighter teal */
+  --accent: #6a11cb;       /* Purple accent */
+  --accent2: #2575fc;      /* Blue accent */
+  --danger: #ff5f6d;       /* Red for danger */
+  --warning: #ffc371;      /* Warm orange/yellow */
+  --light: #f9fafb;        /* Very light */
   --bg-gradient: linear-gradient(135deg, var(--primary), var(--secondary), var(--info));
   --shadow-lg: 0 12px 30px rgba(0, 0, 0, 0.10);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.09);
@@ -25,12 +26,25 @@ body {
   font-family: 'Segoe UI', Arial, sans-serif;
   margin: 0;
   padding: 0;
-  background: var(--bg-gradient);
   min-height: 100vh;
   font-size: 16px;
   letter-spacing: 0.02em;
   color: #222;
+
+  /* Layered background with depth and movement */
+  background:
+    radial-gradient(circle at center, rgba(106, 17, 203, 0.15) 0%, transparent 70%),
+    radial-gradient(circle at top left, rgba(37, 117, 252, 0.11) 10%, transparent 90%),
+    linear-gradient(135deg, var(--primary), var(--secondary), var(--info));
+  background-blend-mode: screen, screen, normal;
+  background-size: 200% 200%, 180% 180%, 100% 100%;
+  animation: backgroundShift 18s ease-in-out infinite;
+  box-shadow: inset 0 0 45px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow-x: hidden;
 }
+
+
 
 
 .scanner-container {
@@ -172,35 +186,145 @@ tr:nth-child(even) {
 tr:hover {
   background: #e0f7fa;
 }
-#popup {
-  display: none;
+
+
+
+/* General Blur Effect */
+.blurred {
+  filter: blur(8px) brightness(0.92) saturate(1.2);
+  transition: filter 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Overlay (glassmorphism effect) */
+.popup-overlay {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+  top: 0; left: 0;
+  height: 100%; width: 100%;
+  background: rgba(34, 40, 49, 0.45);
+  backdrop-filter: blur(9px) saturate(1.35);
+  -webkit-backdrop-filter: blur(9px) saturate(1.35);
   z-index: 999;
+  display: none;
+  transition: background 0.3s;
 }
 
-#popup button {
-  margin: 5px;
-  padding: 8px 14px;
+.popup-overlay.active {
+  display: block;
+  animation: fadeIn 0.35s cubic-bezier(0.4,0,0.2,1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Centered Popup Card */
+#popup.card {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(0.98);
+  z-index: 1000;
+  min-width: 340px;
+  max-width: 90vw;
+  padding: 38px 32px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.93) 65%, rgba(220,240,255,0.95) 100%);
+  box-shadow: 0 16px 54px 0 rgba(0,0,0,0.28), 0 2px 12px 0 rgba(120,170,255,0.13);
+  border: 1.5px solid rgba(255,255,255,.5);
+  display: none;
+  opacity: 0;
+  transition: opacity 0.3s, transform 0.45s cubic-bezier(0.23,0.6,0.32,1.2);
+}
+
+#popup.card.active {
+  display: block;
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Title & Description */
+.card .title {
+  font-weight: 800;
+  font-size: 1.6em;
+  margin-bottom: 0.4em;
+  color: #262d45;
+  letter-spacing: 1px;
+  text-align: center;
+  background: linear-gradient(90deg, #008fff, #56d6b3 80%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.card .description {
+  font-size: 1.08em;
+  color: #344054;
+  margin-bottom: 1.6em;
+  text-align: center;
+  line-height: 1.52;
+}
+
+/* Actions */
+.card .actions {
+  display: flex;
+  gap: 22px;
+  justify-content: center;
+  margin-top: 1.7em;
+}
+
+/* Modern, Vibrant Buttons */
+.card .decline,
+.card .valid {
+  padding: 12px 32px;
+  font-size: 1.07em;
+  font-weight: bold;
   border: none;
-  border-radius: 5px;
+  border-radius: 99px;
   cursor: pointer;
+  outline: none;
+  background: none;
+  transition: all 0.23s cubic-bezier(0.4,0,0.2,1);
+  box-shadow: 0 3px 16px rgba(0,0,0,0.13), 0 1.5px 9px rgba(80,40,255,0.07);
+  text-shadow: 0 2px 6px rgba(0,0,0,0.14);
 }
 
-#popup button:first-child {
-  background-color: #dc3545;
-  color: white;
+.card .decline {
+  color: red;
 }
 
-#popup button:last-child {
-  background-color: #6c757d;
+.card .valid {
+  color: green;
+}
+
+.card .decline:hover {
   color: white;
+  background-color: rgb(255, 0, 0);
+  box-shadow: 4px 4px 8px 0px rgb(134, 124, 124), 
+              inset -8px -8px 16px 0px rgba(134, 20, 20, 0.7), 
+              inset 0px 14px 28px 0px hsl(120deg 20% 95%);
+}
+
+.card .valid:hover {
+  color: white;
+  background-color: rgb(0, 156, 0);
+  box-shadow: 4px 4px 8px 0px rgb(124, 134, 125), 
+              inset -8px -8px 16px 0px rgba(47, 134, 20, 0.7), 
+              inset 0px 14px 28px 0px hsl(120deg 20% 95%);
+} 
+.card .emoji,
+.card .title .emoji,
+.card .description .emoji {
+  /* Reset to default appearance */
+  all: unset;
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+  font-size: 1.8em;
+  display: inline;
+  background: none !important;
+  color: initial !important;
+  text-shadow: none !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: unset !important;
 }
 
 
@@ -386,45 +510,55 @@ tr:hover {
 </head>
 <body>
 
-  {% include 'inventory/navbar.html' %}
+  <!-- Main content wrapper for blur -->
+  <div id="main-content">
 
-  <div class="scanner-container">
-    <div class="scanner-card">
-      <h2>QR Code Scanner</h2>
+    {% include 'inventory/navbar.html' %}
 
-      <!-- QR Image Section -->
-      <div class="qr-image-container">
-        <img src="{% static 'inventory/QR Code-bro.svg' %}" alt="QR Code Illustration" class="qr-illustration">
+    <div class="scanner-container">
+      <div class="scanner-card">
+        <h2>QR Code Scanner</h2>
+
+        <!-- QR Image Section -->
+        <div class="qr-image-container">
+          <img src="{% static 'inventory/QR Code-bro.svg' %}" alt="QR Code Illustration" class="qr-illustration">
+        </div>
+
+        <!-- QR Code Scanner -->
+        <div id="reader"></div>
+        <br><br>
       </div>
 
-      <!-- QR Code Scanner -->
-      <div id="reader"></div>
-      <br>
-      <br>
+      <div class="table-container">
+        <h3><center>📦 Scanned Products</center></h3>
+        <table id="product-table">
+          <thead>
+            <tr>
+              <th>Product Name</th>
+              <th>PID</th>
+              <th>Category</th>
+              <th>Added Date</th>
+              <th>Expiry Date</th>
+              <th>Price</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
 
-    <div class="table-container">
-      <h3><center>📦 Scanned Products</center></h3>
-      <table id="product-table">
-        <thead>
-          <tr>
-            <th>Product Name</th>
-            <th>PID</th>
-            <th>Category</th>
-            <th>Added Date</th>
-            <th>Expiry Date</th>
-            <th>Price</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </div>
+  </div> <!-- end of #main-content -->
 
-  <div id="popup" class="popup">
-    <p>Product already exists. Remove?</p>
-    <button onclick="confirmRemove(true)">Yes</button>
-    <button onclick="confirmRemove(false)">No</button>
+  <!-- Popup Overlay -->
+  <div class="popup-overlay" id="popup-overlay"></div>
+  <div id="popup" class="card" >
+    <span class="emoji">⚠️</span>
+    <span class="title"> Product Exists</span>
+    <p class="description">This product is already scanned. Do you want to remove it?</p>
+    <div class="actions">
+      <button class="decline" onclick="confirmRemove(false)">No</button>
+      <button class="valid" onclick="confirmRemove(true)">Yes</button>
+    </div>
   </div>
 
   <script>

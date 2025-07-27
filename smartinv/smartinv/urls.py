@@ -18,11 +18,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from inventory.views import home_view 
+from inventory import views
 from django.conf import settings
 from django.conf.urls.static import static
 from django.shortcuts import redirect
 
 urlpatterns = [
+    path('', views.landing_page, name='landing'),
     path('', lambda request: redirect('/inventory/scan/')),
     # path('', home_view),  # 🏠 Home page loads index.html
     path('admin/', admin.site.urls),  # 🛠 Admin panel

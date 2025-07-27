@@ -1,0 +1,71 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Smart Inventory System</title>
+  <link rel="stylesheet" href="{% static 'landing.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
+</head>
+<body>
+  {% include 'inventory/navbar.html' %}
+  <header class="hero">
+  <!-- Layered animated gradient background shapes -->
+  <div class="hero-bg-shape1"></div>
+  <div class="hero-bg-shape2"></div>
+  <div class="hero-bg-shape3"></div>
+  <!-- Parallax/glassy hero content -->
+  <div class="hero-content glass hero-3d">
+    <div class="hero-graphic">
+      <!-- Example: you can replace below SVG with your own 3D-style image/illustration -->
+      <img src="{% static 'Images/inventory-3d-hero.png' %}" alt="Inventory 3D Illustration" class="hero-3d-img" />
+      <!-- If you don't have a 3D PNG, use an SVG, Lottie JSON or modern illustration as fallback -->
+    </div>
+    <div class="hero-text">
+      <h1 id="headline">
+        <span class="hero-gradient-text">Smart Inventory System</span>
+      </h1>
+      <p>Revolutionizing Inventory Management for the Future</p>
+      <a href="/dashboard" class="cta-btn">Get Started</a>
+    </div>
+  </div>
+  <div class="hero-float-dot"></div>
+</header>
+
+
+  <section class="about" id="about">
+    <h2>About Us</h2>
+    <p>Smart Inventory System is a modern solution for efficient, real-time inventory tracking and management for all scales of business.</p>
+  </section>
+
+  <section class="services" id="services">
+    <h2>Our Services</h2>
+    <div class="carousel service-cards">
+      <div class="card">🔍 Real-time Inventory Tracking</div>
+      <div class="card">📦 Smart Stock Replenishment</div>
+      <div class="card">📊 Analytics Dashboard</div>
+      <div class="card">🔔 Auto Alerts & Notifications</div>
+      <div class="card">🌐 Cloud Integrations</div>
+    </div>
+  </section>
+
+  <section class="why-us" id="why">
+    <h2>Why Choose Us</h2>
+    <ul>
+      <li>✔️ Accurate & Fast</li>
+      <li>✔️ Cloud-based Secure System</li>
+      <li>✔️ Scalable & Customizable</li>
+    </ul>
+  </section>
+
+  <footer class="footer">
+    <p>© 2025 Smart Inventory System &nbsp;|&nbsp; Contact: support@example.com</p>
+  </footer>
+
+  <script src="{% static 'landing.js' %}"></script>
+</body>
+</html>
