@@ -1,557 +1,61 @@
 {% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
   <title>Smart Inventory QR Scanner</title>
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-  <link rel="stylesheet" href="{% static 'inventory/styles.css' %}">
-  <style>
-
-:root {
-  --primary: #1e3a8a;      /* Deep blue */
-  --secondary: #0f766e;    /* Teal */
-  --info: #0e7490;         /* Slightly lighter teal */
-  --accent: #6a11cb;       /* Purple accent */
-  --accent2: #2575fc;      /* Blue accent */
-  --danger: #ff5f6d;       /* Red for danger */
-  --warning: #ffc371;      /* Warm orange/yellow */
-  --light: #f9fafb;        /* Very light */
-  --bg-gradient: linear-gradient(135deg, var(--primary), var(--secondary), var(--info));
-  --shadow-lg: 0 12px 30px rgba(0, 0, 0, 0.10);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.09);
-  --transition: 0.3s cubic-bezier(.4,2,.6,1);
-}
-
-body {
-  font-family: 'Segoe UI', Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  min-height: 100vh;
-  font-size: 16px;
-  letter-spacing: 0.02em;
-  color: #222;
-
-  /* Layered background with depth and movement */
-  background:
-    radial-gradient(circle at center, rgba(106, 17, 203, 0.15) 0%, transparent 70%),
-    radial-gradient(circle at top left, rgba(37, 117, 252, 0.11) 10%, transparent 90%),
-    linear-gradient(135deg, var(--primary), var(--secondary), var(--info));
-  background-blend-mode: screen, screen, normal;
-  background-size: 200% 200%, 180% 180%, 100% 100%;
-  animation: backgroundShift 18s ease-in-out infinite;
-  box-shadow: inset 0 0 45px rgba(0, 0, 0, 0.1);
-  position: relative;
-  overflow-x: hidden;
-}
-
-
-
-
-.scanner-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 30px;
-  align-items: flex-start;
-  padding: 30px;
-  justify-content: center;
-}
-
-.scanner-card {
-  background: #ffffff;
-  width: 90%;
-  gap: 30px;
-  max-width: 450px;
-  margin-bottom: 800px; /* Adjust value as needed */
-  padding-bottom: 52px; /* Optional: for internal spacing */
-  margin: 4px auto;
-  padding: 25px 20px;
-  border-radius: 16px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
-  border: 1px solid #f1f5f9;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.scanner-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
-}
-
-.scanner-card h2 {
-  text-align: center;
-  font-size: 22px;
-  color: #0f172a;
-  margin-bottom: 20px;
-  margin-top: 0;
-}
-.qr-scanner-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-bottom: 48px; /* space for button */
-}
-
-@media(max-width: 480px) {
-  .scanner-card {
-    width: 95%;
-    max-width: 100%;
-    padding: 20px 15px;
-    border-radius: 12px;
-  }
-  .scanner-card h2 {
-    font-size: 18px;
-  }
-  body {
-    font-size: 14px;
-  }
-  th, td {
-    font-size: 12px;
-    padding: 6px;
-  }
-}
-
-.scan-btn {
-  background: linear-gradient(90deg, rgba(107, 17, 203, 0.59), #2575fc);
-  border: none;
-  padding: 10px 25px;
-  border-radius: 30px;
-  color: white;
-  font-size: 1.0rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-}
-
-.scan-btn:hover {
-  background: linear-gradient(90deg, #2575fc, #6a11cb);
-  transform: scale(1.05);
-}
-
-.table-container {
-  flex: 1;
-  margin: 6px auto;
-  min-width: 250px;
-  background: white;
-  border-radius: 12px;
-  gap:30px;
-  padding: 30px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-h1 {
-  width: 100%;
-  font-size: 32px;
-  margin-bottom: 10px;
-  color: white;
-}
-
-.subtitle {
-  width: 100%;
-  font-size: 16px;
-  color: #e0f2fe;
-  margin-bottom: 30px;
-}
-
-h3 {
-  margin-top: 0;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-}
-
-th {
-  background-color: #1e3a8a;
-  color: white;
-  font-weight: bold;
-  padding: 12px;
-  border: 1px solid #ccc;
-  box-shadow: inset 0 -1px 0 #0f172a;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-td {
-  padding: 10px;
-  border: 1px solid #ddd;
-  text-align: center;
-  background-color: #f9fafb;
-}
-tr:nth-child(even) {
-  background: #f9f9f9;
-}
-
-tr:hover {
-  background: #e0f7fa;
-}
-
-
-
-/* General Blur Effect */
-.blurred {
-  filter: blur(8px) brightness(0.92) saturate(1.2);
-  transition: filter 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  pointer-events: none;
-  user-select: none;
-}
-
-/* Overlay (glassmorphism effect) */
-.popup-overlay {
-  position: fixed;
-  top: 0; left: 0;
-  height: 100%; width: 100%;
-  background: rgba(34, 40, 49, 0.45);
-  backdrop-filter: blur(9px) saturate(1.35);
-  -webkit-backdrop-filter: blur(9px) saturate(1.35);
-  z-index: 999;
-  display: none;
-  transition: background 0.3s;
-}
-
-.popup-overlay.active {
-  display: block;
-  animation: fadeIn 0.35s cubic-bezier(0.4,0,0.2,1);
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-/* Centered Popup Card */
-#popup.card {
-  position: fixed;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%) scale(0.98);
-  z-index: 1000;
-  min-width: 340px;
-  max-width: 90vw;
-  padding: 38px 32px;
-  border-radius: 22px;
-  background: linear-gradient(135deg, rgba(255,255,255,0.93) 65%, rgba(220,240,255,0.95) 100%);
-  box-shadow: 0 16px 54px 0 rgba(0,0,0,0.28), 0 2px 12px 0 rgba(120,170,255,0.13);
-  border: 1.5px solid rgba(255,255,255,.5);
-  display: none;
-  opacity: 0;
-  transition: opacity 0.3s, transform 0.45s cubic-bezier(0.23,0.6,0.32,1.2);
-}
-
-#popup.card.active {
-  display: block;
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
-}
-
-/* Title & Description */
-.card .title {
-  font-weight: 800;
-  font-size: 1.6em;
-  margin-bottom: 0.4em;
-  color: #262d45;
-  letter-spacing: 1px;
-  text-align: center;
-  background: linear-gradient(90deg, #008fff, #56d6b3 80%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.card .description {
-  font-size: 1.08em;
-  color: #344054;
-  margin-bottom: 1.6em;
-  text-align: center;
-  line-height: 1.52;
-}
-
-/* Actions */
-.card .actions {
-  display: flex;
-  gap: 22px;
-  justify-content: center;
-  margin-top: 1.7em;
-}
-
-/* Modern, Vibrant Buttons */
-.card .decline,
-.card .valid {
-  padding: 12px 32px;
-  font-size: 1.07em;
-  font-weight: bold;
-  border: none;
-  border-radius: 99px;
-  cursor: pointer;
-  outline: none;
-  background: none;
-  transition: all 0.23s cubic-bezier(0.4,0,0.2,1);
-  box-shadow: 0 3px 16px rgba(0,0,0,0.13), 0 1.5px 9px rgba(80,40,255,0.07);
-  text-shadow: 0 2px 6px rgba(0,0,0,0.14);
-}
-
-.card .decline {
-  color: red;
-}
-
-.card .valid {
-  color: green;
-}
-
-.card .decline:hover {
-  color: white;
-  background-color: rgb(255, 0, 0);
-  box-shadow: 4px 4px 8px 0px rgb(134, 124, 124), 
-              inset -8px -8px 16px 0px rgba(134, 20, 20, 0.7), 
-              inset 0px 14px 28px 0px hsl(120deg 20% 95%);
-}
-
-.card .valid:hover {
-  color: white;
-  background-color: rgb(0, 156, 0);
-  box-shadow: 4px 4px 8px 0px rgb(124, 134, 125), 
-              inset -8px -8px 16px 0px rgba(47, 134, 20, 0.7), 
-              inset 0px 14px 28px 0px hsl(120deg 20% 95%);
-} 
-.card .emoji,
-.card .title .emoji,
-.card .description .emoji {
-  /* Reset to default appearance */
-  all: unset;
-  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
-  font-size: 1.8em;
-  display: inline;
-  background: none !important;
-  color: initial !important;
-  text-shadow: none !important;
-  -webkit-background-clip: unset !important;
-  -webkit-text-fill-color: unset !important;
-}
-
-
-#reader {
-  width: 100%;
-  max-width: 400px;
-  height: 300px;
-  margin: 32px auto;
-  border: 2px solid #64748b;    /* Classy slate blue-gray */
-  border-radius: 18px;
-  background: #fafbfc;
-  box-shadow: 0 3px 12px rgba(40, 54, 81, 0.07);
-  box-sizing: border-box;
-  transition: box-shadow 0.3s;
-}
-
-
-
-
-#html5-qrcode-button-camera-start {
-  background: linear-gradient(135deg, #A3DC9A,rgba(123, 224, 131, 0.58));
-  color: black;
-  font-weight: bold;
-  font-size: 18px;
-  border: none;
-  padding: 14px 28px;
-  border-radius: 50px;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s ease;
-  margin-bottom: 15px;
-}
-
-#html5-qrcode-button-camera-start:hover {
-  background: linear-gradient(135deg,rgba(117, 242, 123, 0.51),rgb(144, 225, 86));
-  transform: scale(1.05);
-}
-
-#html5-qrcode-button-camera-start::before {
-  content: "⛶ ";
-  font-size: 20px;
-  margin-right: 8px;
-}
-
-/* ----- Stop Button ----- */
-#html5-qrcode-button-camera-stop {
-  background: linear-gradient(135deg,rgb(61, 116, 122),rgb(130, 193, 173));
-  color: #fff;
-  font-weight: bold;
-  font-size: 1rem;
-  border: none;
-  padding: 13px 28px;
-  border-radius: 32px;
-  cursor: pointer;
-  box-shadow: 0 4px 16px rgba(255,111,109,0.12);
-  transition: var(--transition);
-  margin-left: 15px;
-  margin-bottom: 10px;
-}
-#html5-qrcode-button-camera-stop::before {
-  content: '❚❚  '
-}
-#html5-qrcode-button-camera-stop:hover {
-  background: linear-gradient(135deg,rgb(122, 171, 155),rgb(64, 122, 129));
-  transform: scale(1.07) translateY(-1px);
-}
-
-#html5-qrcode-anchor-scan-type-change {
-  font-weight: 600;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  text-decoration: underline;
-  cursor: pointer;
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, rgba(0,120,212,0.1), transparent);
-  box-shadow: 0 0 15px rgba(0, 62, 110, 0.2);
-  transition: all 0.3s ease;
-}
-
-#html5-qrcode-anchor-scan-type-change:hover {
-  color: #004a8c;
-  background: linear-gradient(135deg, rgba(0,120,212,0.3), rgba(0,120,212,0.1));
-  box-shadow: 0 0 12px rgba(0,120,212,0.5);
-  text-decoration: none;
-}
-
-#reader__dashboard_section_csr {
-  margin-bottom: 20px;
-}
-
-.qr-image-container {
-  display: flex;
-  justify-content: center;
-  margin: 20px 0;
-}
-
-.qr-illustration {
-  width: 120px;
-  max-width: 45%;
-  height: auto;
-  transition: transform 0.4s ease, filter 0.4s ease;
-  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.2));
-}
-.qr-illustration:hover {
-  transform: scale(1.05);
-  filter: drop-shadow(0 8px 20px rgba(0,0,0,0.3));
-}
-
-.upload-instruction {
-  text-align: center;
-  font-size: 16px;
-  color: #374151;
-  margin-top: 20px;
-  margin-bottom: 10px;
-}
-#upload-btn {
-  display: block;
-  margin: 10px auto 20px auto;
-  cursor: pointer;
-  transition: background-color 0.3s ease, border-color 0.3s ease;
-}
-
-/* Tablets */
-@media (max-width: 1024px) {
-  .scanner-container {
-    padding: 20px;
-    gap: 20px;
-  }
-  .scanner-card,
-  .table-container {
-    flex: 1 1 90%;
-    max-width: none;
-  }
-}
-
-@media (max-width: 768px) {
-  .scanner-container {
-    flex-direction: column;
-    align-items: center;
-    padding: 0;
-  }
-  .scanner-card,
-  .table-container {
-    width: 90%;
-    min-width: unset;
-  }
-  .qr-illustration {
-    width: 80px;
-    max-width: 35%;
-  }
-  #reader {
-    height: 250px;
-    max-width: 300px;
-  }
-}
-
-/* Phones */
-@media (max-width: 480px) {
-  .qr-illustration {
-    width: 60px;
-    max-width: 30%;
-  }
-  #reader {
-    height: 200px;
-    max-width: 250px;
-  }
-}
-
-/* Very small devices */
-@media (max-width: 360px) {
-  .qr-illustration {
-    width: 50px;
-    max-width: 25%;
-  }
-  #reader {
-    height: 180px;
-    max-width: 220px;
-  }
-}
-
-  </style>
+  <link rel="stylesheet" href="{% static 'inventory/index.css' %}" />
 </head>
 <body>
 
   <!-- Main content wrapper for blur -->
   <div id="main-content">
-
     {% include 'inventory/navbar.html' %}
 
     <div class="scanner-container">
+
       <div class="scanner-card">
         <h2>QR Code Scanner</h2>
 
         <!-- QR Image Section -->
         <div class="qr-image-container">
-          <img src="{% static 'inventory/QR Code-bro.svg' %}" alt="QR Code Illustration" class="qr-illustration">
+          <img src="{% static 'inventory/QR Code-bro.svg' %}" alt="QR Code Illustration" class="qr-illustration" />
         </div>
 
         <!-- QR Code Scanner -->
         <div id="reader"></div>
-        <br><br>
       </div>
 
       <div class="table-container">
-        <h3><center>📦 Scanned Products</center></h3>
-        <table id="product-table">
-          <thead>
-            <tr>
-              <th>Product Name</th>
-              <th>PID</th>
-              <th>Category</th>
-              <th>Added Date</th>
-              <th>Expiry Date</th>
-              <th>Price</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+        <h3>📦 Scanned Products</h3>
+        <div class="product-table" role="table" aria-label="Scanned products">
+
+          <div class="table-header" role="rowgroup">
+            <div class="table-row table-head" role="row">
+              <div class="table-cell" role="columnheader">Product Name</div>
+              <div class="table-cell" role="columnheader">PID</div>
+              <div class="table-cell" role="columnheader">Category</div>
+              <div class="table-cell" role="columnheader">Added Date</div>
+              <div class="table-cell" role="columnheader">Expiry Date</div>
+              <div class="table-cell" role="columnheader">Price</div>
+            </div>
+          </div>
+
+          <div class="table-body" role="rowgroup" id="product-table-body">
+            <!-- Rows inserted here by JS -->
+          </div>
+
+        </div>
       </div>
-    </div>
+
+    </div> <!-- end .scanner-container -->
 
   </div> <!-- end of #main-content -->
 
   <!-- Popup Overlay -->
   <div class="popup-overlay" id="popup-overlay"></div>
-  <div id="popup" class="card" >
+  <div id="popup" class="card">
     <span class="emoji">⚠️</span>
     <span class="title"> Product Exists</span>
     <p class="description">This product is already scanned. Do you want to remove it?</p>
@@ -561,10 +65,10 @@ tr:hover {
     </div>
   </div>
 
+  
   <script>
     document.cookie = "csrftoken={{ csrf_token }}";
   </script>
   <script src="{% static 'inventory/script.js' %}"></script>
-
 </body>
 </html>

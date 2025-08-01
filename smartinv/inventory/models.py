@@ -25,6 +25,8 @@ class Product(models.Model):
     added_date = models.DateField(auto_now_add=True)
     qr_code = models.ImageField(upload_to='qr_codes/', blank=True, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)  # New field
+    supplier_name = models.CharField(max_length=255, blank=True, null=True)
+    supplier_email = models.EmailField(blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if not self.pid:

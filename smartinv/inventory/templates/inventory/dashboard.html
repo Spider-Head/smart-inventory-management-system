@@ -1,117 +1,239 @@
 {% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Inventory Dashboard</title>
-    <link rel="stylesheet" href="{% static 'inventory/styles.css' %}">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Inventory Dashboard</title>
+  <link rel="stylesheet" href="{% static 'inventory/styles.css' %}" />
 </head>
 <body>
+  {% include 'inventory/navbar.html' %}
 
-    {% include 'inventory/navbar.html' %}
+  <main class="dashboard-main" role="main" aria-label="Inventory Dashboard">
+    <h1>📊 Inventory Dashboard</h1>
 
-    <div class="dashboard-container">
-        <h1>📊 Inventory Dashboard</h1>
-
-        <!-- Products About to Expire -->
-        <h2>⚠️ Products About to Expire</h2>
+    <!-- Full-width: Near Expiring Products -->
+    <article class="dashboard-card near-expiring-fullwidth" tabindex="0" aria-expanded="false" role="region" aria-labelledby="expiring-title">
+      <header class="dashboard-card-header" id="expiring-title">
+        <span>⚠️ Near Expiring Products</span>
+        <button class="expand-btn" aria-label="Expand Near Expiring Products"></button>
+      </header>
+      <div class="dashboard-card-content">
         {% if about_to_expire %}
-            <table class="styled-table">
-                <tr><th>Name</th><th>PID</th><th>Expiry Date</th></tr>
-                {% for p in about_to_expire %}
-                <tr><td>{{ p.name }}</td><td>{{ p.pid }}</td><td>{{ p.expiry_date }}</td></tr>
-                {% endfor %}
-            </table>
+        <table class="mini-table" role="table" aria-describedby="expiring-desc">
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">PID</th>
+              <th scope="col">Expiry Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in about_to_expire %}
+            <tr>
+              <td>{{ p.name }}</td>
+              <td>{{ p.pid }}</td>
+              <td>{{ p.expiry_date }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
         {% else %}
-            <p>No products expiring soon.</p>
+        <p id="expiring-desc" class="card-empty">No products expiring soon.</p>
         {% endif %}
+      </div>
+    </article>
 
-        <!-- Expired Products -->
+    <!-- Main Content Grid Layout -->
+    <div class="dashboard-content-grid">
+
+      <!-- Expired Products -->
+      <section class="alert-list" aria-label="Expired products">
         <h2>❌ Expired Products</h2>
         {% if expired_products %}
-            <table class="styled-table">
-                <tr><th>Name</th><th>PID</th><th>Expiry Date</th></tr>
-                {% for p in expired_products %}
-                <tr>
-                    <td>{{ p.name }}</td>
-                    <td>{{ p.pid }}</td>
-                    <td class="alert">{{ p.expiry_date }}</td>
-                </tr>
-                {% endfor %}
-            </table>
+        <ul role="list" class="alerts">
+          {% for p in expired_products %}
+          <li>
+            <span class="alert-name">{{ p.name }}</span>
+            <span class="alert-pid">{{ p.pid }}</span>
+            <span class="alert-date alert">{{ p.expiry_date }}</span>
+          </li>
+          {% endfor %}
+        </ul>
         {% else %}
-            <p>All products are within expiry date.</p>
+        <p class="card-empty">All products are within expiry date.</p>
         {% endif %}
+      </section>
 
-        <!-- Low/Zero Stock -->
-        <h2>📉 Low/Zero Stock</h2>
-        {% if low_stock %}
-            <table class="styled-table">
-                <tr><th>Product Name</th><th>Total Stock</th></tr>
-                {% for item in low_stock %}
-                <tr><td>{{ item.name }}</td><td>{{ item.total_quantity }}</td></tr>
-                {% endfor %}
-            </table>
-        {% else %}
-            <p>All stocks are sufficient.</p>
-        {% endif %}
+      <!-- Low/Zero Stock Graph Card -->
+      <div class="graph-card low-stock-card-pro" aria-label="Low or zero stock visualization">
+        <header class="graph-card-header">
+          <div class="pro-stock-header-left">
+            <h2>📉 Low/Zero Stock</h2>
+          </div>
+          <div class="pro-stock-header-right">
+            <span class="stock-count">{{ low_stock|length }}</span>
+            <span class="stock-label"><h3>at risk</h3></span>
+          </div>
+        </header>
+        <div id="lowStockChart" class="low-stock-content">
+          {% if low_stock %}
+            <ul class="low-stock-list-pro">
+            {% for product_group in low_stock %}
+              <li class="low-stock-li" tabindex="0" aria-expanded="false">
+                <div class="li-main-row">
+                  <div class="product-info-group">
+                    <span class="product-name">{{ product_group.name }}</span>
+                  </div>
+                  <div class="product-progress">
+                    <div class="progress-bar" data-quantity="{{ product_group.total_quantity }}"></div>
+                  </div>
+                  <div class="product-quantity">{{ product_group.total_quantity }}</div>
+                  <button class="expand-li-btn" aria-label="Toggle details"></button>
+                </div>
+                <div class="li-details-content">
+                  <ul class="pid-list">
+                  {% for pid_info in product_group.pids %}
+                    <li>
+                      <strong>PID:</strong> {{ pid_info.pid }}
+                    </li>
+                  {% endfor %}
+                  </ul>
+                </div>
+              </li>
+            {% endfor %}
+            </ul>
+          {% else %}
+            <p class="card-empty">All stocks are sufficient.</p>
+          {% endif %}
+        </div>
+      </div>
 
-        <!-- Least Stock Category -->
-        <h2>📦 Category with Least Stock</h2>
-        {% if least_category %}
-            <p class="alert">
-                {{ least_category.product__category__name }} — {{ least_category.product_count }} products,
-                total quantity: <strong>{{ least_category.total }}</strong> item{{ least_category.total|pluralize }}
-            </p>
-        {% else %}
-            <p>No stock data.</p>
-        {% endif %}
+<!-- Predicted Stockouts Carousel -->
+<section class="insight-carousel" aria-label="Stockout insights carousel">
+  <h2>🔮 Predicted Stockouts & Insights</h2>
 
-        <!-- Predicted Stockouts -->
-        <h2>🔮 Predicted Stockouts & Insights</h2>
-        {% if predicted_outs %}
-            <table class="styled-table">
-                <tr>
-                    <th>PID</th>
-                    <th>Stock</th>
-                    <th>Daily Avg</th>
-                    <th>📊 Stock Insights</th>
-                </tr>
-                {% for o in predicted_outs %}
-                <tr>
-                    <td>{{ o.pid }}</td>
-                    <td>{{ o.stock }}</td>
-                    <td>{{ o.daily_avg }}</td>
-                    <td class="alert">
-                        {% if o.stock == 0 %}
-                            ❌ Out of stock – Urgent reorder
-                        {% elif o.daily_avg == 0 %}
-                            ℹ️ No recent usage – Review demand
-                        {% elif o.days_left <= 3 %}
-                            ⚠️ Low stock – Reorder in next {{ o.days_left }} days
-                        {% elif o.days_left <= 7 %}
-                            ⏳ Moderate – Consider reordering in {{ o.days_left }} days
-                        {% else %}
-                            ✅ Sufficient for ~{{ o.days_left }} days
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </table>
-        {% else %}
-            <p>No stockout risk detected.</p>
-        {% endif %}
+  {% if predicted_outs %}
+  <div class="carousel-wrapper">
+    <div class="carousel-track">
+      <!-- Dummy left spacer -->
+      <div class="carousel-dummy-card dummy-left" tabindex="0" aria-label="Scroll to start" role="button">
+        <span class="dummy-icon">⬅️</span>
+        <span class="dummy-label">Scroll Left</span>
+      </div>
 
-        <!-- Daily Consumption Chart -->
-        <h2>📈 Daily Consumption Chart</h2>
-        {% if chart_base64 %}
-            <img src="data:image/png;base64,{{ chart_base64 }}" alt="Chart" style="max-width: 100%; height: auto;">
-        {% else %}
-            <p>No consumption data.</p>
-        {% endif %}
+      {% for o in predicted_outs %}
+      <div class="insight-card" tabindex="0" aria-label="Stockout insight for product {{ o.pid }}">
+        <div><strong>Product:</strong> {{ o.name }}</div>
+        <div><strong>PID:</strong> {{ o.pid }}</div>
+        <div><strong>Stock:</strong> {{ o.stock }}</div>
+        <div><strong>Daily Avg:</strong> {{ o.daily_avg }}</div>
+        <div class="insight-message
+          {% if o.stock == 0 %}alert-critical
+          {% elif o.days_left <= 3 %}alert-warning
+          {% else %}alert-info
+          {% endif %}">
+          {% if o.stock == 0 %}
+          ❌ Out of stock – Urgent reorder
+          {% elif o.daily_avg == 0 %}
+          ℹ️ No recent usage – Review demand
+          {% elif o.days_left <= 3 %}
+          ⚠️ Low stock – Reorder in next {{ o.days_left }} days
+          {% elif o.days_left <= 7 %}
+          ⏳ Moderate – Consider reorder in {{ o.days_left }} days
+          {% else %}
+          ✅ Sufficient for ~{{ o.days_left }} days
+          {% endif %}
+        </div>
 
-        <br><br>
-        <a href="/" class="button-primary">⬅ Back to Scanner</a>
+        <button
+  class="button reorder-btn"
+  type="button"
+  data-product="{{ o.name|escapejs }}"
+  data-pid="{{ o.pid }}"
+  data-price="{{ o.price }}"
+  data-supplier="{{ o.supplier_name|escapejs }}"
+  data-email="{{ o.supplier_email|escapejs }}"
+  data-defaultqty="{{ o.default_qty|default:1 }}"
+  aria-label="Reorder {{ o.name }}"
+>
+  <span class="button-outer">
+    <span class="button-inner">
+      <span>🚚 Reorder</span>
+    </span>
+  </span>
+</button>
+
+      </div>
+      {% endfor %}
+
+      <!-- Dummy right spacer -->
+      <div class="carousel-dummy-card dummy-right" tabindex="0" aria-label="Scroll to end" role="button">
+        <span class="dummy-icon">➡️</span>
+        <span class="dummy-label">Scroll Right</span>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <p class="card-empty">No stockout risk detected</p>
+  {% endif %}
+</section>
+
+<!-- Reorder Popup Modal -->
+<div id="reorder-popup-overlay" class="reorder-overlay" style="display:none;"></div>
+<div id="reorder-popup" class="reorder-modal" role="dialog" aria-modal="true" aria-hidden="true" style="display:none;" tabindex="-1">
+  <form id="reorder-form" autocomplete="off">
+    <h3>Reorder Product</h3>
+
+    <label for="reorder-product">Product Name</label>
+    <input type="text" id="reorder-product" name="product" readonly />
+
+    <label for="reorder-qty">Quantity</label>
+    <div class="flex-qty">
+      <button type="button" class="qty-btn" id="qty-dec" aria-label="Decrease quantity">−</button>
+      <input type="number" id="reorder-qty" name="quantity" min="1" value="1" aria-live="polite" />
+      <button type="button" class="qty-btn" id="qty-inc" aria-label="Increase quantity">+</button>
     </div>
 
+    <label for="reorder-price">Price</label>
+    <input type="text" id="reorder-price" name="price" readonly />
+
+    <label for="reorder-supplier">Supplier Name</label>
+    <input type="text" id="reorder-supplier" name="supplier" readonly />
+
+    <label for="reorder-email">Supplier Email</label>
+    <input type="email" id="reorder-email" name="email" readonly />
+
+    <div class="modal-actions">
+      <button type="button" class="modal-cancel" aria-label="Cancel reorder">Cancel</button>
+      <button type="submit" class="modal-send" aria-label="Confirm reorder">Reorder</button>
+    </div>
+  </form>
+</div>
+
+
+
+      <!-- Consumption Chart - Full width in grid -->
+      <div class="graph-card graph-card2" aria-label="Daily consumption chart">
+        <header>
+          <h2>📈 Daily Consumption Chart</h2>
+        </header>
+        <div id="consumptionChart" class="glossy-premium-chart"></div>
+        <script>
+          const chartData = {{ chart_data_json|safe }};
+        </script>
+      </div>
+
+    </div><!-- dashboard-content-grid END -->
+
+    <a href="/" class="button-primary" role="button" style="display:block; margin:2.6rem auto 1.5rem; max-width:310px; text-align:center;">⬅ Back to Scanner</a>
+  </main>
+
+  <!-- Vendor and App JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollToPlugin.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+  <script src="{% static 'inventory/dashboard.js' %}"></script>
 </body>
 </html>

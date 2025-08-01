@@ -8,8 +8,8 @@ class ProductCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'pid', 'category', 'added_date', 'expiry_date', 'quantity')
-    search_fields = ('name', 'pid', 'category__name')
+    list_display = ('name', 'pid', 'category', 'added_date', 'expiry_date', 'quantity','supplier_name', 'supplier_email')
+    search_fields = ('name', 'pid', 'category__name','supplier_name')
     list_filter = ('category', 'expiry_date')
 
 @admin.register(WarehouseStock)

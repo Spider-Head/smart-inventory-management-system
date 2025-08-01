@@ -337,6 +337,95 @@ h2::after {
   }
 }
 
+/* About section */
+.about {
+  padding: 60px 20px;
+  background: #ffffff;
+  text-align: center;
+  max-width: 1120px;
+  position: relative;
+}
+
+.about-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 30px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  display: grid;
+  
+}
+
+.about h2 {
+  font-size: 2rem;
+  color: var(--accent2);
+  margin-bottom: 30px;
+}
+
+.about-us-boxes {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 20px;
+  flex-wrap: nowrap;
+}
+
+.about-us-card {
+  flex: 1;
+  min-width: 150px;
+  max-width: 180px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 22px;
+  padding: 20px 15px;
+  border: 1px solid #e5e7eb;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.12),
+    0 8px 20px rgba(106, 17, 203, 0.18),
+    0 14px 36px rgba(37, 117, 252, 0.15);
+  text-align: center;
+  cursor: pointer;
+}
+
+.about-us-card .emoji {
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+}
+
+.about-us-card h3 {
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+  color: var(--primary);
+}
+
+.about-us-card p {
+  font-size: 0.9rem;
+  color: #374151;
+  line-height: 1.4;
+}
+
+/* Glowing Hover Effects */
+.about-us-card:hover {
+  transform: translateY(-6px) scale(1.03);
+}
+
+.about-us-card:nth-child(1):hover {
+  box-shadow: 0 0 18px 5px #6a11cb88;
+}
+.about-us-card:nth-child(2):hover {
+  box-shadow: 0 0 18px 5px #0f766e88;
+}
+.about-us-card:nth-child(3):hover {
+  box-shadow: 0 0 18px 5px #3b82f688;
+}
+.about-us-card:nth-child(4):hover {
+  box-shadow: 0 0 18px 5px #ef444488;
+}
+.about-us-card:nth-child(5):hover {
+  box-shadow: 0 0 18px 5px #eab30888;
+}
+
 
 /* Animated & 3D service cards carousel */
 .services {

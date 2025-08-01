@@ -19,28 +19,57 @@ def get_expired_products():
     today = now().date()
     return Product.objects.filter(expiry_date__lt=today)
 
+from collections import defaultdict
+from django.db.models import Sum
 
 def get_low_or_zero_stock(threshold=10):
+    # 1. Aggregate total_quantity by product name
+    from collections import defaultdict
     from django.db.models import Sum
 
-    # Group by product name across PIDs
-    stock_data = (
+    # Aggregate total quantity per product name
+    name_totals = (
         WarehouseStock.objects
-        .values('product__name')  # ✅ group by name
+        .values('product__name')
         .annotate(total_qty=Sum('quantity'))
-        .order_by('total_qty')
+    )
+    # Pick product names with total quantity less or equal threshold
+    low_stock_names = {item['product__name'] for item in name_totals if item['total_qty'] <= threshold}
+    if not low_stock_names:
+        return []
+
+    # 2. Get product details grouped by those low stock product names with PIDs and their quantities
+    product_details = (
+        WarehouseStock.objects
+        .filter(product__name__in=low_stock_names)
+        .values('product__pid', 'product__name')
+        .annotate(pid_quantity=Sum('quantity'))
+        .order_by('product__name', 'product__pid')
     )
 
-    low_or_zero = []
+    # 3. Group products by name, prepare final data structure
+    grouped = defaultdict(lambda: {'total_quantity': 0, 'pids': []})
+    # Map total quantities per name for reference
+    total_quantities_map = {item['product__name']: item['total_qty'] for item in name_totals if item['product__name'] in low_stock_names}
 
-    for item in stock_data:
-        if item['total_qty'] <= threshold:
-            low_or_zero.append({
-                'name': item['product__name'],
-                'total_quantity': item['total_qty']
-            })
+    for prod in product_details:
+        name = prod['product__name']
+        pid = prod['product__pid']
+        qty = prod['pid_quantity']
+        grouped[name]['total_quantity'] = total_quantities_map[name]
+        grouped[name]['pids'].append({'pid': pid, 'quantity': qty})
 
-    return low_or_zero
+    # 4. Convert grouped dict to list for template context
+    result = []
+    for name, data in grouped.items():
+        result.append({
+            'name': name,
+            'total_quantity': data['total_quantity'],
+            'pids': data['pids'],
+        })
+
+    return result
+
 
 from django.db.models import Sum, Count
 
@@ -79,67 +108,54 @@ def predict_stockouts():
 
         try:
             stock = WarehouseStock.objects.get(product__pid=pid)
+            product = stock.product
             days_left = int(stock.quantity / daily_avg) if daily_avg else None
             if days_left is not None and days_left < 7:
                 result.append({
                     "pid": pid,
+                    "name": product.name,
                     "stock": stock.quantity,
                     "daily_avg": round(daily_avg, 2),
-                    "days_left": days_left
+                    "days_left": days_left,
+                    "price": product.price,  # <- add price
+                    "supplier_name": product.supplier_name,   # <- add supplier name
+                    "supplier_email": product.supplier_email, # <- add email
+                    "default_qty": 1   # (optional) default reorder qty
                 })
+
         except WarehouseStock.DoesNotExist:
             continue
 
     return result
 
-def get_consumption_chart_base64():
+import json
 
+def get_consumption_chart_json():
     logs = InventoryLog.objects.filter(action='remove').select_related('product__category')
-
     if not logs.exists():
         return None
 
-    # Step 1: Prepare data
     data = [{
-        'timestamp': log.timestamp.date(),
+        'timestamp': log.timestamp.date().isoformat(),
         'category': log.product.category.name,
         'quantity': log.quantity
     } for log in logs]
 
+    import pandas as pd
     df = pd.DataFrame(data)
+    if df.empty:
+        return None
 
-    # Step 2: Group by date and category
+    # Pivot for categories over days
     grouped = df.groupby(['timestamp', 'category'])['quantity'].sum().reset_index()
-
-    # Step 3: Pivot - Dates as index, Categories as columns
     pivot = grouped.pivot(index='timestamp', columns='category', values='quantity').fillna(0)
+    categories = list(pivot.columns)
+    dates = list(pivot.index)
+    quantities = pivot.to_dict(orient='list')
 
-    # Step 4: Plot grouped vertical bars
-    plt.figure(figsize=(7, 5))
-    bar_width = 0.15
-    dates = pivot.index.astype(str)  # Convert date to string for x-axis labels
-    categories = pivot.columns
-    x = range(len(dates))
-
-    for idx, category in enumerate(categories):
-        plt.bar(
-            [i + idx * bar_width for i in x],
-            pivot[category],
-            width=bar_width,
-            label=category
-        )
-
-    plt.xlabel('Date')
-    plt.ylabel('Quantity Removed')
-    plt.title('Daily Consumption by Category')
-    plt.xticks([i + bar_width * (len(categories) / 2) for i in x], dates, rotation=45)
-    plt.legend(title="Category")
-    plt.tight_layout()
-
-    # Step 5: Convert to base64
-    buf = BytesIO()
-    plt.savefig(buf, format='png')
-    plt.close()
-    buf.seek(0)
-    return base64.b64encode(buf.read()).decode('utf-8')
-
+    # This dict is safe for JSON serialization
+    return {
+        'categories': categories,
+        'dates': dates,
+        'quantities': quantities  # {'cat1': [q1, q2, ...], ...}
+    }

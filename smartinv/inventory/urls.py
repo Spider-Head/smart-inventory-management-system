@@ -10,5 +10,5 @@ urlpatterns = [
     path('warehouse/', views.get_all_warehouse_stock, name='get-all-warehouse-stock'),
     path('dashboard/', views.dashboard_view, name='dashboard'),
     path('landing/', TemplateView.as_view(template_name='landing.html'), name='landing'),
-
+    path('reorder/', views.reorder_product, name='reorder_product'),
 ]
