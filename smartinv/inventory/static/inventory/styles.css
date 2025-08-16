@@ -11,23 +11,12 @@
 body {
   font-family: 'Segoe UI', Arial, sans-serif;
   margin: 0;
-  background: linear-gradient(135deg, #dbeafe 0%, #a6c1ff 45%, #98abd7 100%);
+  background: linear-gradient(135deg, #70d1c9d8 0%, #a6c1ff 45%, #8396c5 70%);
   min-height: 100vh;
   color: #23254d;
   overflow-x: hidden;
   transition: background 1s cubic-bezier(.4,2,.6,1);
 }
-
-
-/* Animate background gradient for subtle dynamic effect */
-/* body {
-  min-height: 100vh;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  margin: 0;
-  background: linear-gradient(135deg, #dbeafe 0%, #bfd2fe 45%, #a6c1ff 100%);
-  animation: bgShift 25s ease-in-out infinite;
-  background-size: 300% 300%;
-} */
 
 @keyframes bgShift {
   0% {
@@ -1110,6 +1099,7 @@ body {
   position: relative;
   overflow: hidden;
   transition: box-shadow 0.28s;
+  
 }
 
 .graph-card2 h2 {
@@ -1131,11 +1121,13 @@ body {
   overflow: hidden;
   position: relative;
   transition: box-shadow 0.22s, background 0.4s;
-  margin: 0;
+  margin-top: 10px;
+  margin-bottom: 10px;
   /* Extra: help force Plotly/Echarts canvas not to overflow */
   box-sizing: border-box;
   /* Prevent x-scrollbar on mobile */
   max-width: 100%;
+  
 }
 
 @media (max-width: 900px) {
@@ -1169,6 +1161,7 @@ body {
   max-width: 100% !important;
   box-sizing: border-box;
   display: block !important;
+  
 }
 
 
@@ -1199,20 +1192,7 @@ body {
   justify-content: flex-end;
   padding-top: 0.7em;
 }
-/* 
-.reorder-btn {
-  background: linear-gradient(90deg, #2575fc, #6a11cb 80%);
-  color: #fff;
-  font-weight: 700;
-  border: none;
-  border-radius: 22px;
-  padding: 0.65em 1.45em;
-  font-size: 1rem;
-  box-shadow: 0 2px 12px #2575fc24;
-  cursor: pointer;
-  transition: box-shadow 0.17s, background 0.22s;
-  outline: none;
-}*/
+
 .reorder-btn:hover,
 .reorder-btn:focus {
   background: linear-gradient(90deg, #6a11cb, #2575fc 80%);
@@ -1298,7 +1278,6 @@ body {
 }
 .reorder-btn:hover,
 .reorder-btn:focus {
-  background: linear-gradient(90deg, #6a11cb, #257dff 90%);
   transform: scale(1.05);
   outline: none;
 }
@@ -1325,9 +1304,9 @@ body {
   transform: translate(-50%, -50%) scale(0.9);
   background: white;
   border-radius: 20px;
-  width: 320px;
-  max-width: 90vw;
-  padding: 28px 24px;
+  width: 350px;
+  max-width: 100vw;
+  padding: 28px 55px;
   box-shadow: 0 24px 56px rgba(37, 82, 201, 0.5);
   z-index: 10001;
   display: none;
@@ -1417,24 +1396,55 @@ body {
 }
 
 .modal-cancel {
-  background: #e2e8f0;
+  background: #ccd2d8;
   color: #475569;
 }
 
 .modal-cancel:hover,
 .modal-cancel:focus {
-  background: #cbd5e1;
+  background: #9fa7b0;
   outline: none;
+  color: #3a4656;
 }
 
 .modal-send {
-  background: linear-gradient(90deg, #257dff, #6a11cb 90%);
-  color: white;
+  background: linear-gradient(90deg, #25ff71, #42ef84e1 90%);
+  color: rgb(0, 0, 0);
   box-shadow: 0 6px 16px rgba(37, 82, 201, 0.6);
 }
 
 .modal-send:hover,
 .modal-send:focus {
-  background: linear-gradient(90deg, #6a11cb, #257dff 90%);
+  background: linear-gradient(90deg, #63e998, #25ff5f 90%);
   outline: none;
 }
+
+
+.chart-nav-btns {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+.chart-nav-btn {
+  background: linear-gradient(96deg, #e5e9ff 50%, #f3f3fa 100%);
+  color: #335;
+  border: none;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 1.02rem;
+  padding: 9px 24px;
+  box-shadow: 0 2px 8px #6a11cb12;
+  cursor: pointer;
+  outline: none;
+  transition: background 0.19s, color 0.18s, box-shadow 0.21s, transform 0.16s;
+}
+.chart-nav-btn.active,
+.chart-nav-btn:hover,
+.chart-nav-btn:focus-visible {
+  background: linear-gradient(90deg, #2575fc 0%, #6a11cb 100%);
+  color: #fff;
+  box-shadow: 0 7px 20px #6a11cb21, 0 1.2px 4px #2575fc35;
+  transform: scale(1.06) translateY(-1px);
+}
+
+

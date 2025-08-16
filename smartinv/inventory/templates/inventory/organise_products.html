@@ -1,0 +1,172 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Organise Products - Inventory System</title>
+    <link rel="stylesheet" href="{% static 'inventory/organise_products.css' %}">
+    <!-- [Optional decorative icons/fonts/animations here] -->
+</head>
+<body>
+    {% include 'inventory/navbar.html' %}
+
+    <!-- Animated SVG/gradient decorative elements (background 'reactbits')-->
+    <div class="hero-blobs">
+        <div class="blob blob1"></div>
+        <div class="blob blob2"></div>
+        <div class="blob blob3"></div>
+        <div class="blob blob4"></div>
+    </div>
+    
+    <!-- Animated Sparkles/Particles -->
+    <div class="page-sparkles"></div>
+
+    <!-- Premium Header -->
+    <header class="page-header">
+        <h1 class="page-title animate-pop">✨ Organise Products ✨</h1>
+        <div class="subtitle-wrapper">
+            <p class="page-subtitle">
+                Your interactive, drag-and-drop visual warehouse, reimagined.
+            </p>
+        </div>
+        <div class="hr-underline"></div>
+    </header>
+
+    <!-- Glassy Panel: Create Inventory Model Form -->
+    <section id="create-inventory-model-section" class="panel panel-glass animate-pop">
+        <h2><span class="icon">📦</span> Create Inventory Model</h2>
+        <form id="create-inventory-model-form" class="flex-form">
+            <div>
+                <label for="model-title">Model Title:</label>
+                <input type="text" id="model-title" name="title" placeholder="e.g. Backroom Storage" required />
+            </div>
+            <div>
+                <label for="num-shelves">Shelves:</label>
+                <input type="number" id="num-shelves" name="num_shelves" value="3" min="1" required />
+            </div>
+            <div>
+                <label for="racks-per-shelf">Racks/Shelf:</label>
+                <input type="number" id="racks-per-shelf" name="racks_per_shelf" value="4" min="1" required />
+            </div>
+            <button type="submit" class="btn btn-primary neon">+ Create</button>
+        </form>
+        <p id="create-model-msg" class="form-feedback" role="alert" aria-live="polite"></p>
+    </section>
+
+    <!-- Glassy Panel: Select Inventory Model -->
+    <section id="select-model-section" class="panel panel-glass animate-pop">
+        <h2><span class="icon">🗃️</span> Select Inventory Model</h2>
+        <form id="select-model-form" class="compact-form" method="get" action="{% url 'inventory:organise_products' %}">
+            <select name="inventory_id" required>
+                <option value="">— Select Model —</option>
+                {% for model in inventory_models %}
+                    <option value="{{ model.id }}" {% if selected_inventory and model.id == selected_inventory.id %}selected{% endif %}>
+                        {{ model.title }}
+                    </option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-glass">Load</button>
+            {% if selected_inventory %}
+                <button type="button" id="btn-delete-inventory" class="btn btn-danger btn-delete-inventory" data-inventory-id="{{ selected_inventory.id }}" title="Delete Inventory Model">
+                    🗑️ Delete Model
+                </button>
+            {% endif %}
+        </form>
+    </section>
+
+    {% if selected_inventory %}
+    <!-- Organiser grid: Shelves/racks/products -->
+    <section id="inventory-layout" class="animate-pop">
+        <h2 class="glass-title">Inventory Model: <span class="model-highlight">{{ selected_inventory.title }}</span></h2>
+        <div class="organiser-flex panels-grid">
+            <!-- Unassigned Products Panel -->
+            <aside id="unassigned-products" class="glass-aside droppable animate-float" aria-label="Unassigned products" tabindex="0">
+                <h3 class="aside-title"><span class="icon">📦</span> Unassigned Products</h3>
+                <div class="unassigned-list fancy-scroll">
+                    {% if unassigned_products %}
+                        {% for product in unassigned_products %}
+                            <div class="product-card draggable glass-card" data-product-id="{{ product.id }}" draggable="true" tabindex="0">
+                                <span class="prod-dot"></span>
+                                <span class="prod-name">{{ product.name }}</span>
+                                <small class="prod-pid">(PID: {{ product.pid }})</small>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="empty-rack-text"><em>No unassigned products</em></p>
+                    {% endif %}
+                </div>
+            </aside>
+
+            <!-- Shelves & Racks Panel -->
+            <div id="shelves-container" class="shelves-columns">
+                {% for shelf in shelves %}
+                    <section class="shelf glass-shelf animate-float" data-shelf-id="{{ shelf.id }}">
+                        <div class="shelf-header">
+                            <h3 contenteditable="true" class="editable-shelf-label" data-shelf-id="{{ shelf.id }}" spellcheck="false" aria-label="Shelf name">
+                                {% if shelf.label %}
+                                    {{ shelf.label }}
+                                {% else %}
+                                    Shelf {{ shelf.index }}
+                                {% endif %}
+                            </h3>
+                            <button type="button" class="btn btn-danger btn-delete-shelf" data-shelf-id="{{ shelf.id }}" title="Delete Shelf">Delete Shelf</button>
+                        </div>
+                        <div class="racks-row">
+                            {% for rack in shelf.racks.all|dictsort:"index" %}
+                                <div class="rack glass-rack droppable animate-in" data-rack-id="{{ rack.id }}">
+                                    <div class="rack-header">
+                                        <h4 contenteditable="true" class="editable-rack-label" data-rack-id="{{ rack.id }}" spellcheck="false" aria-label="Rack name">
+                                            {% if rack.label %}
+                                                {{ rack.label }}
+                                            {% else %}
+                                                Rack {{ rack.index }}
+                                            {% endif %}
+                                        </h4>
+                                        <button type="button" class="btn btn-danger btn-delete-rack" data-rack-id="{{ rack.id }}" title="Delete Rack">🗑️</button>
+                                    </div>
+                                    <div class="rack-products fancy-scroll">
+                                        {% if rack.products.all %}
+                                            {% for product in rack.products.all %}
+                                                <div class="product-card draggable glass-card" data-product-id="{{ product.id }}" draggable="true" tabindex="0">
+                                                    <span class="prod-dot"></span>
+                                                    <span class="prod-name">{{ product.name }}</span>
+                                                    <small class="prod-pid">(PID: {{ product.pid }})</small>
+                                                </div>
+                                            {% endfor %}
+                                        {% else %}
+                                            <p class="empty-rack-text"><em>Empty</em></p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            <!-- Add Rack Button -->
+                            <button type="button" class="btn btn-add-rack glass-btn" data-shelf-id="{{ shelf.id }}" title="Add Rack">
+                                <span class="icon">➕</span> Add Rack
+                            </button>
+                        </div>
+                    </section>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Main JS + GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="{% static 'inventory/organise_products.js' %}"></script>
+
+    <!-- Re-trigger animations after reload -->
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        ['create-inventory-model-section', 'select-model-section', 'inventory-layout'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.classList.remove('animate-pop');
+                void el.offsetWidth; // trigger reflow
+                el.classList.add('animate-pop');
+            }
+        });
+    });
+    </script>
+</body>
+</html>

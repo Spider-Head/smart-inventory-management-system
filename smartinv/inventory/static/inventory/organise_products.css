@@ -1,0 +1,604 @@
+/* Layered, immersive, light 'warehouse' background with overlays */
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  margin: 0;
+  color: #14325f;
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding-bottom: 5vw;
+  overflow-x: hidden;
+  background: linear-gradient(120deg, #6793bb 0%, #3b78c9 54%, #b8dbd3 100%);
+  box-shadow: 0 0 100px 20px #f0f3f7 inset;
+}
+
+.subtitle-wrapper {
+  text-align: center;         /* Center the content */
+}
+
+.page-subtitle {
+  display: inline-block;      /* Allow width animation but keep centered */
+  white-space: nowrap;
+  overflow: hidden;
+  border-right: 3px solid var(--accent2); /* Cursor effect */
+  
+  /* Typing animation */
+  animation: typing 3.5s steps(60, end), blinkCaret 0.75s step-end infinite;
+}
+
+/* Typing animation - use ch units based on text length */
+@keyframes typing {
+  from { width: 0ch; }
+  to { width: 60ch; } /* match the text length in characters */
+}
+
+@keyframes blinkCaret {
+  0%, 100% { border-color: transparent; }
+  50% { border-color: var(--accent2); }
+}
+
+
+
+/* -- Premium Marble/Glass main panels -- */
+.panel-glass, .glass-shelf, .glass-rack, .glass-card, .glass-aside {
+  background: rgba(255,255,255,0.78);
+  border: 2px solid #eef1f7cc;
+  box-shadow: 0 8px 32px 3px #47526244;
+  border-radius: 22px;
+  backdrop-filter: blur(9.5px);
+  position: relative;
+}
+
+/* Floating animations */
+.animate-float { animation: floatEase 6s infinite cubic-bezier(.4,0,.6,1) alternate; }
+@keyframes floatEase { 0% { transform: translateY(0); } 100% { transform: translateY(-16px);} }
+.animate-pop { animation: popIn 1.25s cubic-bezier(.19,1,.22,1); }
+@keyframes popIn { 0% { opacity: 0; transform: scale(.92); } 100% { opacity: 1; transform: scale(1); } }
+
+/* Decorative blobs */
+.hero-blobs {
+  position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 0;
+}
+.blob { position: absolute; border-radius: 50%; opacity: 0.10; filter: blur(7px);}
+.blob1 { width: 380px; height: 220px; background: #39b7ff; left: -140px; top: 80px;}
+.blob2 { width: 420px; height: 350px; background: #ffd85e; left: 80vw; top: 24vh;}
+.blob3 { width: 260px; height: 210px; background: #4a90e2; left: 20vw; top: 72vh;}
+.blob4 { width: 140px; height: 110px; background: #34e07b; left: 85vw; top: 80vh;}
+
+/* Header */
+.page-header {
+  padding-top: 100px;
+  margin: 0 auto 2.7rem auto;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+.page-title {
+  font-weight: 900;
+  font-size: 3.4rem;
+  letter-spacing: 0.04em;
+  text-shadow: 0 8px 25px #36afff22;
+  margin-top: 2.3rem;
+  animation: colorFade 5s infinite alternate ease-in-out;
+  color: black;
+}
+@keyframes colorFade {
+  0% { color: black; }
+  50% { color: white; }
+  100% { color: black; }
+}
+.page-subtitle {
+  margin-bottom: .2rem; color: #f9f7f7; font-size: 1.1rem; font-weight: 500;
+}
+.hr-underline {
+  width: 56px; height: 4px; background: linear-gradient(90deg, #ffd700, #17bb71); margin: 0.5rem auto 1.8rem auto; border-radius: 9px;
+}
+
+/* Glassmorphic Panels */
+.panel-glass, .glass-aside {
+  margin: 2.8rem auto 3.5rem auto;
+  padding: 2.4rem 3rem 2rem 3rem;
+  max-width: 760px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.11), inset 0 0 12px 2px rgba(255, 255, 255, 0.13);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  transition: box-shadow 0.4s ease;
+  user-select: none;
+}
+.panel-glass:hover, .glass-aside:hover {
+  box-shadow: 0 10px 45px 0 rgba(31, 38, 135, 0.25), inset 0 0 18px 4px rgba(255, 255, 255, 0.25);
+}
+
+/* Form layout */
+.flex-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem 3rem;
+  align-items: center;
+  justify-content: space-between;
+}
+.flex-form > div {
+  flex: 1 1 220px;
+  min-width: 180px;
+  display: flex;
+  flex-direction: column;
+}
+form label {
+  font-weight: 540;
+  color: #FCF8DD;
+  margin-bottom: 0.65rem;
+  font-size: 1.2rem;
+  text-shadow: 0 0 3px rgba(85, 86, 87, 0.4);
+  letter-spacing: 0.03em;
+  user-select: text;
+}
+form input {
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.85), rgba(245, 245, 255, 0.9));
+  font-size: 1.075rem;
+  color: #1e2c48;
+  padding: 0.75rem 1.2rem;
+  box-shadow: 4px 4px 8px rgba(163, 195, 255, 0.3), inset 1px 1px 6px rgba(255, 255, 255, 0.9);
+  transition: box-shadow 0.35s ease, transform 0.3s ease;
+  cursor: text;
+}
+form select{
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.85), rgba(245, 245, 255, 0.9));
+  font-size: 1.075rem;
+  color: #1e2c48;
+  padding: 0.75rem 1.2rem;
+  box-shadow: 4px 4px 8px rgba(163, 195, 255, 0.3), inset 1px 1px 6px rgba(255, 255, 255, 0.9);
+  transition: box-shadow 0.35s ease, transform 0.3s ease;
+  cursor: pointer;
+}
+form input::placeholder{ color: #95a4ba; font-style: italic; }
+form input:focus{
+  outline: none;
+  box-shadow: 0 0 12px 3px rgba(168, 191, 223, 0.85), inset 0 0 9px 1px rgba(255, 255, 255, 0.9);
+  transform: scale(1.03);
+}
+form select::placeholder { color: #95a4ba; font-style: italic; }
+form select:focus {
+  outline: none;
+  box-shadow: 0 0 12px 3px rgba(168, 191, 223, 0.85), inset 0 0 9px 1px rgba(255, 255, 255, 0.9);
+  transform: scale(1.03);
+  cursor: pointer;
+}
+
+/* Shelves and racks */
+.organiser-flex.panels-grid {
+  display: flex;
+  gap: 1.5rem 2rem;
+  align-items: flex-start;
+  justify-content: flex-start;
+  margin-top: 2.2rem;
+  width: 100%;
+  max-width: 1460px;             /* Prevent overflow on wide screens */
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 1.5vw 1vw 1.5vw;    /* Padding on sides for desktop and mobile */
+  box-sizing: border-box;
+}
+@media (max-width: 1200px) {
+  .organiser-flex.panels-grid { gap: 1.7rem; flex-wrap: wrap; }
+  .shelf { min-width: 260px; }
+  #unassigned-products { min-width: 225px; }
+}
+.glass-aside {
+  min-width: 340px;
+  max-width: 380px;
+  border-left: 10px solid #002238;
+  box-shadow: 0 3px 24px 0 #aeeaff38;
+  position: sticky;
+  top: 3rem;
+  z-index: 3;
+}
+.aside-title { color: #002238; font-size: 1.05rem; letter-spacing: .07em; margin-bottom: .9em;}
+.unassigned-list { min-height: 220px; max-height: 520px; overflow-y: auto; }
+.fancy-scroll::-webkit-scrollbar { width: 1px;}
+.fancy-scroll::-webkit-scrollbar-thumb { background: #d8dfe8; border-radius: 7px;}
+
+.model-highlight { color: #002238; font-weight: 800; font-size: 1.22em; letter-spacing: .06em;}
+.glass-title { margin: 36px 0 18px 0; font-size: 1.46rem; color: #ffffff; font-weight: 800; letter-spacing: .07em; text-align: center;}
+#shelves-container { flex-grow: 1; display: flex; flex-wrap: wrap; gap: 2.2rem; align-items: flex-start; }
+
+.shelf {
+  position: relative;
+  padding-top: 1.5em !important;
+  margin-bottom: 3rem;
+  box-shadow: 0 calc(6px * 2) 32px #2a518b22, 0 1px 16px #6ab8fa28;
+  border-left: 7px solid transparent;
+  min-width: 372px; min-height: 350px;
+}
+.shelf-header { display: flex; justify-content: space-between; align-items: center; position: static; top: 18px; left: 0;  padding: 0 1.5rem; }
+.shelf-header h3 { font-size: 1.49rem; color: #002238; letter-spacing: 0.11em;}
+.editable-shelf-label { background: none; border: none; border-bottom: 2px dashed #61809f; min-width: 2ch;}
+
+.racks-row {
+  display: flex;
+  gap: 1.6rem;
+  margin-top: 0.8rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  padding-bottom: 1.3rem;
+  margin-left: 4rem;
+}
+
+.rack {
+  position: relative;
+  background: 
+    linear-gradient(135deg, #fff8e0 58%, #f8e9c8 100%), /* soft glassy wood */
+    linear-gradient(140deg, #e4bf7d 20%, #fff4d0 98%);
+  border-radius: 16px 16px 22px 22px;
+  box-shadow: 
+    0 10px 34px 3px #d4bd7f44,              /* Soft floor shadow for weight */
+    0 2px 12px 2px #bb9b4f15,               /* Color accent shadow for depth */
+    0 5px 22px 0 #f5ddaa33,                 /* Large glass/shine shadow */
+    inset 0 2px 22px -3px #fffca999,        /* Inner overhead light */
+    inset 0 -7px 15px -8px #c1ccd6aa;       /* Under-shelf ambient */
+  border: 1.6px solid #cea64a;
+  width: 220px;
+  min-height: 165px;
+  padding: 1.1rem .9rem 1rem .9rem;
+  display: flex;
+  flex-direction: column;
+  opacity: 1;
+  transition: box-shadow 0.29s, background 0.24s, transform 0.19s;
+  overflow: hidden;
+  will-change: transform;
+  /* 3D Entry Animation (GSAP-ready) */
+  animation: rackPopIn 0.77s cubic-bezier(.4,1.2,.6,1) both;
+}
+@keyframes rackPopIn {
+  from { opacity: 0; transform: scale(0.98) translateY(15px);}
+  to   { opacity: 1; transform: scale(1) translateY(0);}
+}
+
+/* "Metal" top bar for classic shelf accent, now with shine/gloss */
+.rack:before {
+  content: "";
+  display: block;
+  position: absolute;
+  left: 18px; right: 18px; top: 0;
+  height: 8px;
+  background:
+    linear-gradient(98deg, #dbeafe 0%, #bfc9d2 58%, #859ba9 100%),    /* metallic reflection */
+    linear-gradient(160deg, #c1ccd6 35%, #7e8a9b 100%);
+  border-radius: 9px;
+  box-shadow:
+    0 3px 19px #e6efff55,       /* overhead shine */
+    0 1px 5px #6e809f22;        /* edge shadow */
+  z-index: 2;
+}
+
+/* Raised subtle "floor" shadow for classic rack depth illusion */
+.rack::after {
+  content: "";
+  position: absolute;
+  left: 16px; right: 16px; bottom: -18px;
+  height: 18px;
+  border-radius: 0 0 18px 18px;
+  background: radial-gradient(ellipse at center, #bfa16222 0%, #0000 100%);
+  opacity: 0.22;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Rack header (label area) */
+.rack-header {
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center;
+  margin-bottom: .45rem;
+  padding-bottom: 3px;
+  z-index: 10;
+  background: rgba(220,184,100,0.09);
+  border-bottom: 1.5px solid #ffe7ba5a;
+  padding-right: 2px;
+  padding-left: 2px;
+}
+
+/* Label: tactile, classic gold/wood accent */
+.rack h4,
+.editable-rack-label {
+  color: #aa771b;
+  font-weight: 750;
+  background: none;
+  border: none;
+  font-size: 1.13rem;
+  border-bottom: 2px dashed #dfbb6c9c;
+  padding-bottom: 1.5px;
+  letter-spacing: 0.03em;
+  transition: border-color 0.22s;
+}
+.editable-rack-label:focus {
+  border-bottom-color: #ffd700;
+  background: #fffdd892;
+  box-shadow: 0 0 11px #ffe08fee;
+  outline: none;
+}
+
+/* Rack products area stays minimal and airy */
+.rack-products {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: .55rem 0 .3rem 0;
+  font-family: inherit;
+  z-index: 3;
+  overflow-y: auto;
+}
+.rack-products::-webkit-scrollbar { width: 7px;}
+.rack-products::-webkit-scrollbar-thumb { background: #ecdea7; border-radius: 7px; }
+
+/* Empty rack message */
+.empty-rack-text {
+  font-style: italic;
+  color: #beae7c;
+  text-align: center;
+  opacity: 0.95;
+  font-size: .97em;
+}
+
+
+.product-card {
+  background: linear-gradient(123deg, #fffdfa 60%, #edefdf 100%);
+  border: 1.2px solid #e2d0ae;
+  border-radius: 8px;
+  box-shadow: 0 2px 11px #a97c381a;
+  padding: 0.95rem 1.1rem;
+  color: #7d6336;
+  font-weight: 500;
+  font-size: 1.06rem;
+  margin: 0 0 0.5rem 0;
+  cursor: grab;
+  transition: box-shadow 0.16s, transform 0.14s;
+  position: relative;
+}
+.product-card:before {
+  content: '';
+  display: inline-block;
+  width: 11px; height: 11px;
+  background: linear-gradient(135deg,#ffc371 50%,#fffbe8 83%);
+  border-radius: 50%; box-shadow: 0 1px 7px #d6ca9a99;
+  margin-right: 11px;
+  vertical-align: middle;
+}
+.product-card:hover, .product-card:focus {
+  outline: 2px solid #002238;
+  box-shadow: 0 2px 7px #070600bc, 0 1px 5px #001d4629;
+  background: #fffbe9cc;
+  transform: scale(1.04);
+}
+
+/* Drop highlight */
+.droppable.dragover, .rack.droppable.dragover, #unassigned-products.droppable.dragover {
+  border-color: #002238 !important;
+  background-color: #fafaabd8 !important;
+  box-shadow: 0 0 14px 2px #002238 inset, 0 8px 24px #15d2c210;
+  transition: background-color 0.17s, border-color 0.22s;
+}
+
+/* Inner shadows */
+.shelf, .glass-shelf, .glass-aside, .rack {
+  box-shadow: 0 2px 24px 2px #6678921b, inset 0 5px 12px #ffffff7c;
+  border: 1.5px solid #e1c08941;
+}
+
+/* Focus styles */
+.product-card:focus-visible,
+button:focus-visible,
+.editable-shelf-label:focus-visible,
+.editable-rack-label:focus-visible {
+  outline: 2.4px solid #002238;
+  outline-offset: 2px;
+}
+
+
+
+/* ---------- BUTTONS: Premium, Distinct, Safely Styled ---------- */
+
+/* UNIVERSAL BUTTON RESET */
+button,
+input[type="submit"],   /* Just in case */
+.btn {
+  font-family: nunito,roboto,proxima-nova,"proxima nova",sans-serif;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 1.04rem;
+  border-radius: 16px;
+  letter-spacing: 0.04em;
+  user-select: none;
+  box-sizing: border-box;
+  margin: 0.35em 0.62em 0.35em 0;
+  padding: 0; /* Padding is defined per-type */
+  line-height: 1.2;
+  transition:
+    background 0.32s,
+    color 0.24s,
+    transform 0.14s,
+    box-shadow 0.28s;
+  vertical-align: middle;
+  white-space: nowrap;
+  /* For edge-case inline children (e.g. svg/icon) */
+  display: inline-flex;
+  align-items: center;
+}
+
+/* PRIMARY (Form submit, create model, action) */
+.btn-primary,
+button[type="submit"].btn-primary,
+button[type="submit"] {
+  background: linear-gradient(115deg, #1866bb 0%, #1f4e79 88%);
+  color: #fff;
+  padding: 0.85em 2.1em;
+  box-shadow: 0 6px 22px #2766bb1a;
+  margin: 0.7em 0.9em 0.7em 0;
+  border-radius: 14px;
+}
+.btn-primary:hover,
+button[type="submit"]:hover,
+.btn-primary:focus {
+  background: linear-gradient(115deg, #1655a0 10%, #306bc2 92%);
+  color: #f8fafd;
+  transform: translateY(-2.5px) scale(1.055);
+  box-shadow: 0 9px 32px 0 #1f4e7990;
+}
+
+
+
+
+
+/* ADD RACK BUTTON (distinct outlines) */
+.btn-add-rack {
+  background: #153262;
+  color: #ffffff;
+  border: 1.5px solid #a2b0c2;
+  border-radius: 8px;
+  font-size: 1.01em;
+  padding: 0.50em 1.35em;
+  margin: 0.7em 0.1em 0.7em 0.1em;
+  box-shadow: 0 4px 12px #15326211;
+  font-weight: 700;
+}
+.btn-add-rack:hover, .btn-add-rack:focus {
+  background: linear-gradient(130deg, #e8f1fb 85%, #153262 100%);
+  color: #20416e;
+  border-color: #153262;
+  transform: scale(1.10);
+  box-shadow: 0 7px 20px #1532621a;
+}
+
+/* --- Contextual REMOVE/DELETE icon buttons (just the icon) */
+button.btn-danger.btn-delete-inventory,
+button.btn-delete-shelf,
+button.btn-delete-rack {
+  min-width: 0;
+  min-height: 0;
+  padding: 0.36em 1.08em;
+  display: inline-flex;
+  align-items: center;
+  font-size: 1.12em;
+}
+button.btn-danger.btn-delete-inventory {
+  /* Inventory delete gets more space */
+  padding: 0.47em 1.52em;
+  font-size: 1.01em;
+}
+
+/* Ensure no button ever overflows or gets cut off in headers/flex rows */
+.shelf-header > button,
+.rack-header > button {
+  margin-left: 0.18em;
+  margin-right: 0em;
+  margin-top: 0; 
+  margin-bottom: 0;
+  vertical-align: middle;
+}
+.racks-row > .btn-add-rack {
+  margin-left: 0;
+}
+
+@media (max-width: 600px) {
+  .btn,
+  button[type="submit"] {
+    width: 98vw;
+    min-width: 0;
+    font-size: .96em;
+    padding: 0.97em 0.3em;
+    margin: 0.4em 0.17em;
+  }
+}
+
+/* Reduce accidental overlap if deeply nested */
+.btn, button[type="submit"],
+.btn-danger, .btn-glass,
+.btn-add-rack, .btn-delete-inventory, .btn-delete-shelf, .btn-delete-rack {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 0;
+  max-width: 99vw;
+  white-space: nowrap;
+}
+/* Improve spacing for the Select Model form */
+#select-model-form {
+  display: flex;
+  flex-wrap: wrap;           /* allow wrapping on smaller screens */
+  align-items: center;
+  gap: 0.8rem;                /* space between select, Load, and Delete buttons */
+}
+
+#select-model-form select {
+  flex: 1 1 auto;             /* dropdown expands naturally */
+  min-width: 220px;           /* ensure readable width */
+}
+
+/* Style the Load button separately (glass look) */
+.btn-glass {
+  background: rgba(255, 255, 255, 0.22);
+  color: #1f4e79;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  padding: 0.65em 1.4em;      /* slightly smaller to match select height */
+  border: 1.5px solid #cfe2fd;
+  box-shadow: 0 2px 8px #cee2fd33;
+  margin-left: 0.4rem;        /* always some space from dropdown */
+  margin-right: 0.4rem;       /* space from any delete button */
+  border-radius: 14px;
+  flex-shrink: 0;             /* don't shrink in flex row */
+}
+
+.btn-glass:hover {
+  background: rgba(255, 255, 255, 0.45);
+  color: #153262;
+  border-color: #7cc8ff;
+  box-shadow: 0 6px 20px #b8dbd344;
+  transform: translateY(-2px) scale(1.045);
+}
+
+/* Ensure buttons don't press against each other on mobile */
+@media (max-width: 640px) {
+  #select-model-form {
+    flex-direction: column;  /* stack items vertically */
+    align-items: stretch;
+  }
+  #select-model-form select,
+  #select-model-form .btn-glass,
+  #select-model-form .btn-danger {
+    width: 100%;
+    margin: 0.rem 0;
+  }
+}
+/* Make delete button match Load button size & spacing */
+.btn-danger {
+  background: linear-gradient(100deg, #ee5c5d 30%, #ffb381 100%);
+  color: #fff;
+  border-radius: 14px; /* match .btn-glass */
+  font-weight: 800;
+  font-size: 1em;
+  padding: 0.95em 2.4em;   /* same as .btn-glass */
+  margin-left: 0.4rem;     /* same spacing from Load button */
+  margin-right: 0;         /* prevent extra gap */
+  border: 1.5px solid #ed9494;
+  box-shadow: 0 3px 13px #f548486f;
+  flex-shrink: 0;          /* prevent shrinking in flex row */
+}
+
+/* Keep hover effect consistent */
+.btn-danger:hover {
+  background: linear-gradient(98deg, #ffece7 40%, #ff726d 96%);
+  color: #b63321;
+  border-color: #ffdad4;
+  transform: translateY(-2px) scale(1.03);
+}
+
+

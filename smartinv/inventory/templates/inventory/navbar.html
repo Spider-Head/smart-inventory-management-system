@@ -2,10 +2,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>SmartInventory</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'inventory/navbar.css' %}">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'inventory/navbar.css' %}" />
 </head>
 <body>
   <nav class="navbar" id="mainNavbar">
@@ -13,24 +13,27 @@
 
     <!-- Hidden Checkbox for Toggle -->
     <div class="hamburger-wrapper">
-    <input type="checkbox" id="menu-toggle" class="hamburger-checkbox" hidden>
+      <input type="checkbox" id="menu-toggle" class="hamburger-checkbox" hidden />
 
-    <!-- Hamburger Icon -->
-    <label for="menu-toggle" class="hamburger-icon" aria-label="Toggle navigation" tabindex="0">
-      <span class="bar top"></span>
-      <span class="bar middle"></span>
-      <span class="bar bottom"></span>
-    </label>
-  </div>
+      <!-- Hamburger Icon -->
+      <label for="menu-toggle" class="hamburger-icon" aria-label="Toggle navigation" tabindex="0">
+        <span class="bar top"></span>
+        <span class="bar middle"></span>
+        <span class="bar bottom"></span>
+      </label>
+    </div>
   </nav>
 
   <!-- Mobile Navigation Menu -->
-  <div class="mobile-menu">
-    <a href="/" class="{% if active_page == 'home' %}active{% endif %}">🏠 Home</a>
-    <a href="/inventory/scan/" class="{% if active_page == 'scan' %}active{% endif %}">🔍 Scan Product</a>
+  <div class="mobile-menu" role="navigation" aria-label="Primary navigation">
+    <a href="/" class="{% if active_page == 'home' %}active{% endif %}">🏠 Home Page</a>
+    <a href="/inventory/scan/" class="{% if active_page == 'scan-page' %}active{% endif %}">🔍 Scan Product</a>
     <a href="/inventory/dashboard/" class="{% if active_page == 'dashboard' %}active{% endif %}">📊 Dashboard</a>
-    <a href="/admin/" class="{% if active_page == 'admin' %}active{% endif %}">🛡️ Admin</a>
-  </div>
+    <a href="/inventory/organise-products/" class="{% if active_page == 'organise_products' %}active{% endif %}">🗂️ Organise Products</a>
+    <a href="/inventory/stock_movements_page/" class="{% if active_page == 'stock_movements_page' %}active{% endif %}">📜 Stock Movements</a>
+    <a href="/admin/" class="{% if active_page == 'admin' %}active{% endif %}">🛡️ Admin Portal</a>
+</div>
+
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <script src="{% static 'inventory/navbar.js' %}"></script>

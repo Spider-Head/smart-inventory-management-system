@@ -9,7 +9,6 @@
 </head>
 <body>
 
-  <!-- Main content wrapper for blur -->
   <div id="main-content">
     {% include 'inventory/navbar.html' %}
 
@@ -18,12 +17,10 @@
       <div class="scanner-card">
         <h2>QR Code Scanner</h2>
 
-        <!-- QR Image Section -->
         <div class="qr-image-container">
           <img src="{% static 'inventory/QR Code-bro.svg' %}" alt="QR Code Illustration" class="qr-illustration" />
         </div>
 
-        <!-- QR Code Scanner -->
         <div id="reader"></div>
       </div>
 
@@ -34,38 +31,96 @@
           <div class="table-header" role="rowgroup">
             <div class="table-row table-head" role="row">
               <div class="table-cell" role="columnheader">Product Name</div>
-              <div class="table-cell" role="columnheader">PID</div>
+              <div class="table-cell" role="columnheader">Batch ID</div>
               <div class="table-cell" role="columnheader">Category</div>
               <div class="table-cell" role="columnheader">Added Date</div>
               <div class="table-cell" role="columnheader">Expiry Date</div>
-              <div class="table-cell" role="columnheader">Price</div>
+              <div class="table-cell" role="columnheader">₹/unit</div>
+              <div class="table-cell" role="columnheader">Quantity</div>
             </div>
           </div>
 
           <div class="table-body" role="rowgroup" id="product-table-body">
-            <!-- Rows inserted here by JS -->
+            <!-- Rows inserted by JS -->
           </div>
 
         </div>
       </div>
 
-    </div> <!-- end .scanner-container -->
-
-  </div> <!-- end of #main-content -->
-
-  <!-- Popup Overlay -->
-  <div class="popup-overlay" id="popup-overlay"></div>
-  <div id="popup" class="card">
-    <span class="emoji">⚠️</span>
-    <span class="title"> Product Exists</span>
-    <p class="description">This product is already scanned. Do you want to remove it?</p>
-    <div class="actions">
-      <button class="decline" onclick="confirmRemove(false)">No</button>
-      <button class="valid" onclick="confirmRemove(true)">Yes</button>
     </div>
   </div>
 
-  
+  <!-- Duplicate Product Popup -->
+<div class="popup-overlay" id="popup-overlay"></div>
+<div id="popup" class="card">
+  <span class="emoji">⚠️</span>
+  <span class="title">Product Exists</span>
+  <p class="description" id="popup-description">
+    This product is already scanned. Do you want to remove it?
+  </p>
+  <div class="actions">
+    <button class="decline" onclick="closeDuplicatePopup()">No</button>
+    <button class="valid" onclick="openPurchaseForm()">Yes</button>
+  </div>
+</div>
+
+<!-- Purchase Form Popup -->
+<div class="popup-overlay" id="purchase-popup-overlay"></div>
+<div id="purchase-popup" class="card" style="width: 400px; max-width: 90%;">
+  <span class="emoji">🛒</span>
+  <span class="title">Inventory Stock Outs</span>
+  <form id="purchase-form" onsubmit="makePurchase(event)">
+    
+    <label>Purchaser Name *</label>
+    <input type="text" id="buyer-name" required>
+
+    <label>Contact No. *</label>
+    <input type="tel" id="buyer-contact" required>
+
+    <label>Email (optional)</label>
+    <input type="email" id="buyer-email">
+
+    <label>Product</label>
+    <input type="text" id="purchase-product-name" disabled>
+
+    <label>Quantity *</label>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <input type="number" id="purchase-quantity" min="1" value="1" required oninput="updateFinalTotal()">
+      <small id="remaining-stock" style="font-size:0.85rem; color:#666;">Remaining: --</small>
+    </div>
+
+    <label>Discount (%)</label>
+    <input type="number" id="purchase-discount" min="0" value="0" oninput="updateFinalTotal()">
+
+    <label>Tax (%)</label>
+    <input type="number" id="purchase-tax" value="0" disabled>
+
+    <div style="margin-top:10px; font-weight:bold;">
+      Final Total: ₹ <span id="final-total">0</span>
+    </div>
+
+    <div class="actions" style="margin-top:15px;">
+      <button type="button" class="decline" onclick="cancelPurchase()">Cancel Order</button>
+      <button type="submit" class="valid" id="purchase-submit">Make Purchase</button>
+    </div>
+  </form>
+</div>
+
+
+
+  <!-- Quantity Input Popup -->
+  <div class="popup-overlay" id="quantity-popup-overlay"></div>
+  <div id="quantity-popup" class="card">
+    <span class="emoji">➕</span>
+    <span class="title"> New Product </span>
+    <p class="description">Please enter quantity for this product:</p>
+    <input type="number" id="quantity-input" min="1" value="1" >
+    <div class="actions">
+      <button class="decline" onclick="cancelQuantity()">Cancel</button>
+      <button class="valid" onclick="submitQuantity()">OK</button>
+    </div>
+  </div>
+
   <script>
     document.cookie = "csrftoken={{ csrf_token }}";
   </script>

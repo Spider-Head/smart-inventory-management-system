@@ -323,6 +323,109 @@ document.addEventListener('DOMContentLoaded', function () {
   );
 });
 
+
+
+
+
+//new cosumption chart 
+document.addEventListener('DOMContentLoaded', function () {
+  if (!window.allConsumptionData) return;
+  let currentMode = 'daily';  // default
+
+  function plotConsumption(mode) {
+    const chartData = window.allConsumptionData[mode];
+    if (!chartData) return;
+
+    const fillColors = [
+      'rgba(55,183,238,0.92)', 'rgba(255,196,77,0.93)',
+      'rgba(204,82,152,0.93)', 'rgba(54,221,171,0.93)', 'rgba(55,180,255,0.93)'
+    ];
+    const borderColors = ['#2478c8', '#b39032', '#84276e', '#197e64', '#2256a8'];
+
+    const traces = chartData.categories.map((cat, i) => ({
+      name: cat,
+      x: chartData.dates,
+      y: chartData.quantities[cat],
+      type: 'bar',
+      marker: {
+        color: fillColors[i % fillColors.length],
+        line: { color: borderColors[i % borderColors.length], width: 4.5 },
+        opacity: 0.95,
+        pattern: { shape: "/", bgcolor: "rgba(255,255,255,0.05)", fgcolor: "rgba(255,255,255,0.11)", size: 6 }
+      },
+      hoverlabel: {
+        bgcolor: "#121429",
+        bordercolor: fillColors[i % fillColors.length],
+        font: { color: "#fff", size: 16 }
+      }
+    }));
+
+    Plotly.newPlot('consumptionChart', traces, {
+      barmode: 'group',
+      bargap: 0.21,
+      bargroupgap: 0.08,
+      title: {
+        text: `${mode.charAt(0).toUpperCase() + mode.slice(1)} Consumption by Category`,
+        font: { size: 24, color: "#226", family: "Montserrat,sans-serif" }
+      },
+      xaxis: {
+        title: mode === 'daily' ? 'Date' : (mode === 'weekly' ? 'Week' : 'Month'),
+        tickangle: -35,
+        automargin: true,
+        tickfont: { size: 15 }
+      },
+      yaxis: {
+        title: 'Quantity Removed',
+        tickfont: { size: 17, color: "#176" },
+        gridcolor: "rgba(22,66,144,0.11)"
+      },
+      margin: { l: 64, r: 36, b: 84, t: 70, pad: 8 },
+      plot_bgcolor: 'rgba(236,246,255,0.96)',
+      paper_bgcolor: 'rgba(236,246,255,0.0)',
+      legend: {
+        orientation: "h",
+        y: 1.14,
+        xanchor: "center",
+        x: 0.5,
+        font: { size: 15 }
+      },
+      dragmode: 'pan',
+      hovermode: 'x unified',
+    }, {
+      responsive: true,
+      displayModeBar: true,
+      displaylogo: false,
+      modeBar: { remove: ["toImage", "sendDataToCloud"] }
+    });
+  }
+
+  // Draw default view
+  plotConsumption(currentMode);
+
+  // Navigation buttons logic
+  document.querySelectorAll('.chart-nav-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.chart-nav-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      const mode = this.getAttribute('data-mode');
+      plotConsumption(mode);
+    });
+  });
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 document.addEventListener('DOMContentLoaded', () => {
   const reorderPopup = document.getElementById('reorder-popup');
   const reorderOverlay = document.getElementById('reorder-popup-overlay');

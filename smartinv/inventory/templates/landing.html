@@ -30,7 +30,15 @@
         <span class="hero-gradient-text">Smart Inventory System</span>
       </h1>
       <p>Revolutionizing Inventory Management for the Future</p>
-      <a href="/inventory/scan/" class="cta-btn">Get Started</a>
+      <a href="/inventory/scan/" class="cta-btn button" tabindex="0" role="button">
+  <div class="button-outer">
+    <div class="button-inner">
+      <span>Get Started</span>
+    </div>
+  </div>
+</a>
+
+
     </div>
   </div>
   <div class="hero-float-dot"></div>
@@ -39,8 +47,8 @@
 
   <section class="about">
   <div class="about-container">
-    <h2>About Us</h2><br><br>
-    
+    <h2>About Us</h2>
+    <div class='about-us-para'>Our System is designed to offer a fast, secure, and streamlined experience for managing and tracking products, with real-time scanning, organized data display, smooth navigation, Daily Consumption data , and Future predictions etc. It ensures that everything you need is just a few clicks away. Access to core features is strictly limited to authorized admins, keeping sensitive operations protected at all times.</div><br>
     <div class="about-us-boxes">
       <div class="about-us-card">
         <div class="emoji">⚡</div>
@@ -71,23 +79,66 @@
   </div>
 </section>
 
+  {% comment %} <section class="services" id="services">
+  <h2>Our Services</h2>
+  <div class="carousel service-cards">
+    <div class="card card-1"><span class="icon">🔍</span> <span class="label">Real-time Inventory Tracking</span></div>
+    <div class="card card-2"><span class="icon">📦</span> <span class="label">Smart Stock Replenishment</span></div>
+    <div class="card card-3"><span class="icon">📊</span> <span class="label">Analytics Dashboard</span></div>
+    <div class="card card-4"><span class="icon">🔔</span> <span class="label">Auto Alerts & Notifications</span></div>
+    <div class="card card-5"><span class="icon">🌐</span> <span class="label">Cloud Integrations</span></div>
+  </div>
+</section> {% endcomment %}
   <section class="services" id="services">
-    <h2>Our Services</h2>
-    <div class="carousel service-cards">
-      <div class="card">🔍 Real-time Inventory Tracking</div>
-      <div class="card">📦 Smart Stock Replenishment</div>
-      <div class="card">📊 Analytics Dashboard</div>
-      <div class="card">🔔 Auto Alerts & Notifications</div>
-      <div class="card">🌐 Cloud Integrations</div>
+  <h2>Our Services</h2>
+  <div class="carousel service-cards">
+    <div class="card card-1">
+      <span class="icon">🔍</span>
+      <span class="label">Real-time Inventory Tracking</span>
+      <div class="card-content">
+        <p>Track every product and movement instantly with live, accurate data and audit history.</p>
+      </div>
     </div>
-  </section>
+    <div class="card card-2">
+      <span class="icon">📦</span>
+      <span class="label">Smart Stock Replenishment</span>
+      <div class="card-content">
+        <p>Automated reorder suggestions based on real usage, so you never run out or overstock.</p>
+      </div>
+    </div>
+    <div class="card card-3">
+      <span class="icon">📊</span>
+      <span class="label">Analytics Dashboard</span>
+      <div class="card-content">
+        <p>Clear charts and insights for trends, forecasting, and operational decisions—all in one view.</p>
+      </div>
+    </div>
+    <div class="card card-4">
+      <span class="icon">🔔</span>
+      <span class="label">Auto Alerts & Notifications</span>
+      <div class="card-content">
+        <p>Custom warnings for low stock, expiry, anomalies or supplier delays—right when you need them.</p>
+      </div>
+    </div>
+    <div class="card card-5">
+      <span class="icon">🌐</span>
+      <span class="label">Cloud Integrations</span>
+      <div class="card-content">
+        <p>Connect easily with e-commerce, Excel, or any business tools—secure and seamless.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 
   <section class="why-us" id="why">
     <h2>Why Choose Us</h2>
     <ul>
-      <li>✔️ Accurate & Fast</li>
-      <li>✔️ Cloud-based Secure System</li>
-      <li>✔️ Scalable & Customizable</li>
+      <li>✔️ Accurate , Reliable & Secure</li>
+      <li>✔️ Easy , Customizable & Controlled </li>
+      <li>✔️ Waste Reduction & Optimization </li>
+      <li>✔️ Intelligent Alerts & Notifications</li>
+      <li>✔️ Detailed Analytics & Reports</li>
     </ul>
   </section>
 

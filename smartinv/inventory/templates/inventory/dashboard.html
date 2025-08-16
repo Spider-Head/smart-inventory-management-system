@@ -109,7 +109,6 @@
           {% endif %}
         </div>
       </div>
-
 <!-- Predicted Stockouts Carousel -->
 <section class="insight-carousel" aria-label="Stockout insights carousel">
   <h2>🔮 Predicted Stockouts & Insights</h2>
@@ -124,47 +123,74 @@
       </div>
 
       {% for o in predicted_outs %}
-      <div class="insight-card" tabindex="0" aria-label="Stockout insight for product {{ o.pid }}">
+      <div class="insight-card" tabindex="0" aria-label="Stockout insight for product {{ o.name }} (Category: {{ o.category }})">
         <div><strong>Product:</strong> {{ o.name }}</div>
-        <div><strong>PID:</strong> {{ o.pid }}</div>
-        <div><strong>Stock:</strong> {{ o.stock }}</div>
-        <div><strong>Daily Avg:</strong> {{ o.daily_avg }}</div>
-        <div class="insight-message
-          {% if o.stock == 0 %}alert-critical
-          {% elif o.days_left <= 3 %}alert-warning
-          {% else %}alert-info
-          {% endif %}">
-          {% if o.stock == 0 %}
-          ❌ Out of stock – Urgent reorder
-          {% elif o.daily_avg == 0 %}
-          ℹ️ No recent usage – Review demand
-          {% elif o.days_left <= 3 %}
-          ⚠️ Low stock – Reorder in next {{ o.days_left }} days
-          {% elif o.days_left <= 7 %}
-          ⏳ Moderate – Consider reorder in {{ o.days_left }} days
+        <div><strong>Category:</strong> {{ o.category }}</div>
+
+        <div><strong>Total Stock:</strong> 
+          {% if o.total_stock > 0 %}
+            {{ o.total_stock }}
           {% else %}
-          ✅ Sufficient for ~{{ o.days_left }} days
+            <span class="out-of-stock-text">0 (Out of Stock)</span>
           {% endif %}
         </div>
 
-        <button
-  class="button reorder-btn"
-  type="button"
-  data-product="{{ o.name|escapejs }}"
-  data-pid="{{ o.pid }}"
-  data-price="{{ o.price }}"
-  data-supplier="{{ o.supplier_name|escapejs }}"
-  data-email="{{ o.supplier_email|escapejs }}"
-  data-defaultqty="{{ o.default_qty|default:1 }}"
-  aria-label="Reorder {{ o.name }}"
->
-  <span class="button-outer">
-    <span class="button-inner">
-      <span>🚚 Reorder</span>
-    </span>
-  </span>
-</button>
+        <div><strong>Daily Avg Usage:</strong> {{ o.daily_avg }}</div>
 
+        <div class="insight-message
+          {% if o.total_stock == 0 %}alert-critical
+          {% elif o.days_left <= 3 %}alert-warning
+          {% else %}alert-info
+          {% endif %}">
+          {% if o.total_stock == 0 %}
+            ❌ Out of stock – Urgent reorder
+          {% elif o.daily_avg == 0 %}
+            ℹ️ No recent usage – Review demand
+          {% elif o.days_left <= 3 %}
+            ⚠️ Low stock – Reorder in next {{ o.days_left }} days
+          {% elif o.days_left <= 7 %}
+            ⏳ Moderate – Consider reorder in {{ o.days_left }} days
+          {% else %}
+            ✅ Sufficient for ~{{ o.days_left }} days
+          {% endif %}
+        </div>
+
+        <!-- Expandable details per PID -->
+        <details>
+          <summary>View individual product variants (PIDs)</summary>
+          <ul>
+            {% for pid_info in o.pids %}
+              <li>
+                <strong>PID:</strong> {{ pid_info.pid }} |
+                Stock: {{ pid_info.stock }} |
+                Daily Avg: {{ pid_info.daily_avg }}
+                {% if pid_info.stock == 0 %}
+                  <span class="out-of-stock-text"> (Out of Stock)</span>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        </details>
+
+        <!-- Reorder button with updated data attrs -->
+        <button
+          class="button reorder-btn"
+          type="button"
+          data-product="{{ o.name|escapejs }}"
+          data-category="{{ o.category|escapejs }}"
+          data-price="{{ o.price }}"
+          data-supplier="{{ o.supplier_name|escapejs }}"
+          data-email="{{ o.supplier_email|escapejs }}"
+          data-defaultqty="{{ o.default_qty|default:1 }}"
+          aria-label="Reorder {{ o.name }}"
+          {% if o.total_stock == 0 %} data-outofstock="true" {% endif %}
+        >
+          <span class="button-outer">
+            <span class="button-inner">
+              <span>🚚 Reorder</span>
+            </span>
+          </span>
+        </button>
       </div>
       {% endfor %}
 
@@ -176,9 +202,10 @@
     </div>
   </div>
   {% else %}
-  <p class="card-empty">No stockout risk detected</p>
+    <p class="card-empty">No predicted stockouts at this time.</p>
   {% endif %}
 </section>
+
 
 <!-- Reorder Popup Modal -->
 <div id="reorder-popup-overlay" class="reorder-overlay" style="display:none;"></div>
@@ -212,22 +239,28 @@
   </form>
 </div>
 
-
-
       <!-- Consumption Chart - Full width in grid -->
-      <div class="graph-card graph-card2" aria-label="Daily consumption chart">
-        <header>
-          <h2>📈 Daily Consumption Chart</h2>
-        </header>
-        <div id="consumptionChart" class="glossy-premium-chart"></div>
-        <script>
-          const chartData = {{ chart_data_json|safe }};
-        </script>
-      </div>
 
-    </div><!-- dashboard-content-grid END -->
+      <div class="graph-card graph-card2" aria-label="Consumption chart">
+  <header style="display: flex; justify-content: space-between; align-items: center;">
+    <h2>📈 Consumption Chart</h2>
+    <div class="chart-nav-btns">
+      <button type="button" class="chart-nav-btn active" data-mode="daily">Daily</button>
+      <button type="button" class="chart-nav-btn" data-mode="weekly">Weekly</button>
+      <button type="button" class="chart-nav-btn" data-mode="monthly">Monthly</button>
+    </div>
+  </header>
+  <div id="consumptionChart" class="glossy-premium-chart"></div>
+  <script>
+    // Provided by your Django backend:
+    // const allConsumptionData = { daily:{...}, weekly:{...}, monthly:{...} };
+    window.allConsumptionData = {{ chart_data_json|safe }};
+  </script>
+</div>
 
-    <a href="/" class="button-primary" role="button" style="display:block; margin:2.6rem auto 1.5rem; max-width:310px; text-align:center;">⬅ Back to Scanner</a>
+
+
+    <a href="/inventory/scan/" class="button-primary" role="button" style="display:block; margin:2.6rem auto 1.5rem; max-width:250px; text-align:center;">⬅ Back to Scanner</a>
   </main>
 
   <!-- Vendor and App JS -->
