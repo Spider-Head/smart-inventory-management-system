@@ -29,8 +29,13 @@ urlpatterns = [
 
     # Stock movements pages and APIs
     # Stock movements pages and APIs
+    # Stock movements pages and APIs
     path('stock_movements/', views.stock_movements_list, name='stock_movements_list'),
     path('stock_movements_page/', views.stock_movements_page_view, name='stock_movements_page'),
+    path('stock_movements/delete/<str:order_id>/', views.delete_stock_movement, name='delete_stock_movement'),
 
+    # API endpoint to update payment status of a stock movement
+    path('api/update-payment-status/<str:order_id>/', views.update_payment_status_api, name='update_payment_status_api'),
+    
 
 ]

@@ -79,6 +79,7 @@
     <section id="inventory-layout" class="animate-pop">
         <h2 class="glass-title">Inventory Model: <span class="model-highlight">{{ selected_inventory.title }}</span></h2>
         <div class="organiser-flex panels-grid">
+
             <!-- Unassigned Products Panel -->
             <aside id="unassigned-products" class="glass-aside droppable animate-float" aria-label="Unassigned products" tabindex="0">
                 <h3 class="aside-title"><span class="icon">📦</span> Unassigned Products</h3>
@@ -111,6 +112,7 @@
                             </h3>
                             <button type="button" class="btn btn-danger btn-delete-shelf" data-shelf-id="{{ shelf.id }}" title="Delete Shelf">Delete Shelf</button>
                         </div>
+
                         <div class="racks-row">
                             {% for rack in shelf.racks.all|dictsort:"index" %}
                                 <div class="rack glass-rack droppable animate-in" data-rack-id="{{ rack.id }}">
@@ -124,9 +126,10 @@
                                         </h4>
                                         <button type="button" class="btn btn-danger btn-delete-rack" data-rack-id="{{ rack.id }}" title="Delete Rack">🗑️</button>
                                     </div>
+
                                     <div class="rack-products fancy-scroll">
-                                        {% if rack.products.all %}
-                                            {% for product in rack.products.all %}
+                                        {% if rack.filtered_products %}
+                                            {% for product in rack.filtered_products %}
                                                 <div class="product-card draggable glass-card" data-product-id="{{ product.id }}" draggable="true" tabindex="0">
                                                     <span class="prod-dot"></span>
                                                     <span class="prod-name">{{ product.name }}</span>
@@ -139,6 +142,7 @@
                                     </div>
                                 </div>
                             {% endfor %}
+
                             <!-- Add Rack Button -->
                             <button type="button" class="btn btn-add-rack glass-btn" data-shelf-id="{{ shelf.id }}" title="Add Rack">
                                 <span class="icon">➕</span> Add Rack
@@ -149,7 +153,12 @@
             </div>
         </div>
     </section>
+    
     {% endif %}
+
+
+    
+
 
     <!-- Main JS + GSAP -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
@@ -168,5 +177,9 @@
         });
     });
     </script>
+<footer class="footer">
+    <p>© 2025 Smart Inventory System &nbsp;|&nbsp; Contact: support@example.com</p>
+  </footer>
+    
 </body>
 </html>

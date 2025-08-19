@@ -405,3 +405,33 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
+async function refreshOrganiseProducts() {
+  // Fetch latest data from backend (via an API endpoint)
+  const resp = await fetch('/inventory/api/organise-products-data/');
+  const data = await resp.json();
+  // Now re-render the organiser UI using the new data
+  renderOrganiseProducts(data);
+}
+
+document.body.addEventListener('click', async (e) => {
+  if (e.target.classList.contains('btn-delete-product')) {
+    const productId = e.target.dataset.productId;
+    if (confirm("Delete this product? This will remove it from the system.")) {
+      const resp = await fetch(`/inventory/remove/${productId}/`, {
+        method: "POST",
+        headers: { 'X-CSRFToken': getCookie('csrftoken') },
+        // Add body (if required by backend), or just send the POST
+      });
+      const result = await resp.json();
+      if (result.error) {
+        alert(result.error);
+      } else {
+        // Refresh UI after deletion
+        await refreshOrganiseProducts();
+      }
+    }
+  }
+});
+
+
+

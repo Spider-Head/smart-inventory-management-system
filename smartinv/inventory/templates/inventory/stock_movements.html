@@ -5,30 +5,35 @@
     <meta charset="UTF-8">
     <title>Stock Movements</title>
     <link rel="stylesheet" href="{% static 'inventory/stock_movements.css' %}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
 </head>
 <body>
     {% include 'inventory/navbar.html' %}
-    <div class="container">
-        <h2>📦 Stock Movements</h2>
-        <table id="movements-table">
-            <thead>
-                <tr>
-                    <th>Order ID</th>
-                    <th>Date/Time</th>
-                    <th>Product</th>
-                    <th>Quantity</th>
-                    <th>Action</th>
-                    <th>Purchaser</th>
-                    <th>Contact</th>
-                    <th>Email</th>
-                    <th>Payment Status</th>
-                </tr>
-            </thead>
+    <div class="container glass-card">
+        <h2 class="page-title">📦 Stock Movements</h2>
+        <table id="movements-table" class="fancy-table">
+  <thead>
+    <tr class="movements-row header-row">
+    <th>Order ID</th>
+    <th>Date/Time</th>
+    <th>Product</th>
+    <th>Quantity</th>
+    <th>Action</th>
+    <th>Purchaser</th>
+    <th>Contact</th>
+    <th>Amount</th>
+    <th>Payment</th>
+    <th>Delete</th>
+  </tr>
+  </thead>
             <tbody id="movements-body">
                 <!-- JS inserts rows -->
             </tbody>
         </table>
     </div>
+  <footer class="footer">
+    <p>© 2025 Smart Inventory System &nbsp;|&nbsp; Contact: support@example.com</p>
+  </footer>
     <script src="{% static 'inventory/stock_movements.js' %}"></script>
 </body>
 </html>

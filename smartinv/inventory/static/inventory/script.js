@@ -170,7 +170,16 @@ function updateFinalTotal() {
 // 📌 Make purchase & remove stock
 function makePurchase(e) {
   e.preventDefault();
+
   const qty = parseInt(document.getElementById("purchase-quantity").value) || 1;
+  const discount = parseFloat(document.getElementById("purchase-discount").value) || 0;
+  const tax = parseFloat(document.getElementById("purchase-tax").value) || 0;
+
+  // Calculate final total amount again here to ensure accuracy
+  let subtotal = qty * currentProductPrice;
+  let discountAmt = subtotal * (discount / 100);
+  let taxAmt = (subtotal - discountAmt) * (tax / 100);
+  let finalTotal = subtotal - discountAmt + taxAmt;
 
   fetch(`/inventory/remove/${currentScan}/`, {
     method: "POST",
@@ -180,34 +189,37 @@ function makePurchase(e) {
       contact: document.getElementById("buyer-contact").value,
       email: document.getElementById("buyer-email").value,
       quantity: qty,
-      discount: document.getElementById("purchase-discount").value
+      discount: discount,
+      amount: finalTotal.toFixed(2),  // send the amount here
+      payment_status: "paid"          // optionally include this if needed
     })
   })
-    .then(res => res.json())
-    .then(data => {
-      const row = document.querySelector(`.table-row[data-id="${currentScan}"]`);
-      if (data.quantity !== undefined) {
-        if (data.quantity > 0) {
-          if (row) {
-            const qtyCell = row.querySelector('.table-cell[data-label="Quantity"]');
-            if (qtyCell) qtyCell.textContent = data.quantity;
-          }
-        } else {
-          if (row) row.remove();
-          scannedPIDs.delete(currentScan);
+  .then(res => res.json())
+  .then(data => {
+    const row = document.querySelector(`.table-row[data-id="${currentScan}"]`);
+    if (data.quantity !== undefined) {
+      if (data.quantity > 0) {
+        if (row) {
+          const qtyCell = row.querySelector('.table-cell[data-label="Quantity"]');
+          if (qtyCell) qtyCell.textContent = data.quantity;
         }
       } else {
-        alert(data.error || "Unexpected error");
+        if (row) row.remove();
+        scannedPIDs.delete(currentScan);
       }
-    })
-    .catch(err => {
-      console.error("Purchase error:", err);
-      alert("Server error. Try again.");
-    });
+    } else {
+      alert(data.error || "Unexpected error");
+    }
+  })
+  .catch(err => {
+    console.error("Purchase error:", err);
+    alert("Server error. Try again.");
+  });
 
   cancelPurchase();
   currentScan = null;
 }
+
 
 // 📌 Get CSRF
 function getCookie(name) {

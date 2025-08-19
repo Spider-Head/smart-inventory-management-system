@@ -25,17 +25,28 @@ def organise_products_view(request):
     shelves = []
     unassigned_products = []
 
+    live_product_ids = WarehouseStock.objects.values_list('product__id', flat=True)
+
     if selected_inventory_id:
         selected_inventory = get_object_or_404(InventoryModel, id=selected_inventory_id)
         shelves = selected_inventory.shelves.prefetch_related('racks__products').order_by('index')
-        unassigned_products = Product.objects.filter(rack__isnull=True).order_by('name')
+
+        # Filter rack.products to only products with warehouse stock
+        for shelf in shelves:
+            for rack in shelf.racks.all():
+                rack.filtered_products = rack.products.filter(id__in=live_product_ids)
+
+        unassigned_products = Product.objects.filter(
+            rack__isnull=True,
+            id__in=live_product_ids
+        ).order_by('name')
 
     context = {
         'inventory_models': inventory_models,
         'selected_inventory': selected_inventory,
         'shelves': shelves,
         'unassigned_products': unassigned_products,
-        'active_page': 'organise_products',  # <--- flag for navbar
+        'active_page': 'organise_products',
     }
     return render(request, 'inventory/organise_products.html', context)
 
@@ -262,6 +273,13 @@ from django.http import JsonResponse
 from .models import Product, WarehouseStock, InventoryLog, StockMovement
 from django.utils.timezone import now
 
+import json
+import uuid
+from django.http import JsonResponse
+from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.timezone import now, localtime
+from .models import Product, WarehouseStock, InventoryLog, StockMovement
 
 @csrf_exempt
 def remove_product(request, pid):
@@ -270,20 +288,22 @@ def remove_product(request, pid):
             product = Product.objects.get(pid=pid)
             stock = WarehouseStock.objects.get(product=product)
 
-            # Read quantity and purchaser info from request JSON
+            # Read details from request JSON
             try:
                 body = json.loads(request.body.decode('utf-8'))
                 remove_qty = int(body.get('quantity', 1))
                 purchaser = body.get('purchaser', '')
                 contact = body.get('contact', '')
                 email = body.get('email', '')
-                payment_status = body.get('payment_status', 'paid')  # default paid
+                payment_status = body.get('payment_status', 'paid')
+                amount = float(body.get('amount', 0))
             except Exception:
                 remove_qty = 1
                 purchaser = ''
                 contact = ''
                 email = ''
                 payment_status = 'paid'
+                amount = 0
 
             # Validate quantity
             if remove_qty <= 0:
@@ -302,7 +322,7 @@ def remove_product(request, pid):
                 stock.save()
                 remaining_quantity = stock.quantity
 
-            # Log in InventoryLog (for history)
+            # Inventory log (for history)
             InventoryLog.objects.create(
                 product=product,
                 action='remove',
@@ -310,7 +330,7 @@ def remove_product(request, pid):
                 timestamp=now()
             )
 
-            # ✅ Create StockMovement record with order details
+            # Create StockMovement with amount
             order_id = f"ORD-{uuid.uuid4().hex[:8].upper()}"
             StockMovement.objects.create(
                 order_id=order_id,
@@ -320,6 +340,7 @@ def remove_product(request, pid):
                 purchaser_name=purchaser,
                 contact_no=contact,
                 email=email,
+                amount=amount,
                 payment_status=payment_status
             )
 
@@ -336,7 +357,6 @@ def remove_product(request, pid):
 
 
 
-
 # New API endpoint for stock movements
 def stock_movements_list(request):
     movements = StockMovement.objects.select_related('product').order_by('-timestamp')
@@ -350,16 +370,60 @@ def stock_movements_list(request):
             'action': move.get_action_display(),
             'purchaser': move.purchaser_name or '-',
             'contact': move.contact_no or '-',
-            'email': move.email or '-',
+            'amount': str(move.amount),
             'payment_status': move.get_payment_status_display()
         })
     return JsonResponse(data, safe=False)
 
-from django.shortcuts import render
+
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+import json
+from .models import StockMovement
+
+@csrf_exempt
+@require_POST
+def update_payment_status_api(request, order_id):
+    try:
+        data = json.loads(request.body)
+        new_status = data.get('payment_status', '').lower()
+        if new_status not in ['paid', 'pending', 'failed']:
+            return JsonResponse({'error': 'Invalid payment status'}, status=400)
+
+        movement = StockMovement.objects.get(order_id=order_id)
+        movement.payment_status = new_status
+        movement.save()
+
+        return JsonResponse({'success': True, 'payment_status': new_status})
+
+    except StockMovement.DoesNotExist:
+        return JsonResponse({'error': 'Stock movement record not found'}, status=404)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+
+
+
+from django.views.decorators.http import require_http_methods
+@require_http_methods(["DELETE"])
+@csrf_exempt
+def delete_stock_movement(request, order_id):
+    try:
+        movement = StockMovement.objects.get(order_id=order_id)
+        movement.delete()
+        return JsonResponse({'success': True, 'order_id': order_id})
+    except StockMovement.DoesNotExist:
+        return JsonResponse({'error': 'Record not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
 
 def stock_movements_page_view(request):
     return render(request, 'inventory/stock_movements.html', {'active_page': 'stock_movements_page'})
-
 
 # 👉 Optional route (used if you want to keep /inventory/scan/)
 def scan_page(request):

@@ -128,6 +128,8 @@ class StockMovement(models.Model):
     email = models.EmailField(blank=True, null=True)
     payment_status = models.CharField(max_length=10, choices=PAYMENT_STATUS_CHOICES, default='pending')
     timestamp = models.DateTimeField(default=now)
+    amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
 
     def __str__(self):
         return f"{self.order_id} - {self.product.name} ({self.action})"

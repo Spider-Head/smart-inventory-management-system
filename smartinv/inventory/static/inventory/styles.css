@@ -1447,4 +1447,12 @@ body {
   transform: scale(1.06) translateY(-1px);
 }
 
-
+.footer {
+  background: linear-gradient(90deg, #1e3a8a, #003554 90%);
+  color: white;
+  text-align: center;
+  padding: 12px;
+  font-size: 1em;
+  box-shadow: 0 0 25px #1e5ece28;
+  letter-spacing: .04em;
+}
