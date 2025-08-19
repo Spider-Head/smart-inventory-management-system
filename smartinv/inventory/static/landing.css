@@ -95,6 +95,7 @@ body {
 .hero-gradient-text {
   background: linear-gradient(90deg, var(--accent), var(--accent2) 80%);
   background-size: 200% auto;
+  background-clip: padding-box;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-size: 3.3rem;
@@ -201,6 +202,8 @@ body {
   font-weight: bold;
   color: transparent;
   background: linear-gradient(90deg,var(--accent),var(--accent2) 80%);
+  background-clip: padding-box;
+  -webkit-background-clip: padding-box;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: 14px;

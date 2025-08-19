@@ -313,6 +313,8 @@ table tbody tr {
   letter-spacing: 1px;
   text-align: center;
   background: linear-gradient(90deg, #008fff, #56d6b3 80%);
+  background-clip: padding-box;
+  -webkit-background-clip: padding-box;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -383,6 +385,8 @@ table tbody tr {
   background: none !important;
   color: initial !important;
   text-shadow: none !important;
+  background-clip: padding-box;
+  -webkit-background-clip: padding-box;
   -webkit-background-clip: unset !important;
   -webkit-text-fill-color: unset !important;
 }
@@ -417,6 +421,8 @@ table tbody tr {
 
 /* Remove spin buttons in Firefox */
 #quantity-input[type=number] {
+    appearance: none;
+    -webkit-appearance: none;
     -moz-appearance: textfield;
 }
 
