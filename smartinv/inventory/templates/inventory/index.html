@@ -2,130 +2,136 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Smart Inventory QR Scanner</title>
-  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-  <link rel="stylesheet" href="{% static 'inventory/index.css' %}" />
+<meta charset="UTF-8" />
+<title>Smart Inventory QR Scanner</title>
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<link rel="stylesheet" href="{% static 'inventory/index.css' %}" />
 </head>
 <body>
 
-  <div id="main-content">
-    {% include 'inventory/navbar.html' %}
+<div id="main-content">
+{% include 'inventory/navbar.html' %}
 
-    <div class="scanner-container">
+<div class="scanner-container">
 
-      <div class="scanner-card">
-        <h2>QR Code Scanner</h2>
+<div class="scanner-card">
+  <h2>QR Code Scanner</h2>
 
-        <div class="qr-image-container">
-          <img src="{% static 'inventory/QR Code-bro.svg' %}" alt="QR Code Illustration" class="qr-illustration" />
-        </div>
+    <div class="qr-image-container">
+      <img src="{% static 'inventory/QR Code-bro.svg' %}" alt="QR Code Illustration" class="qr-illustration" />
+      </div>
 
         <div id="reader"></div>
       </div>
 
-      <div class="table-container">
+        <div class="table-container">
         <h3>📦 Scanned Products</h3>
-        <div class="product-table" role="table" aria-label="Scanned products">
+<div class="product-table" role="table" aria-label="Scanned products">
 
-          <div class="table-header" role="rowgroup">
-            <div class="table-row table-head" role="row">
-              <div class="table-cell" role="columnheader">Product Name</div>
-              <div class="table-cell" role="columnheader">Batch ID</div>
-              <div class="table-cell" role="columnheader">Category</div>
-              <div class="table-cell" role="columnheader">Added Date</div>
-              <div class="table-cell" role="columnheader">Expiry Date</div>
-              <div class="table-cell" role="columnheader">₹/unit</div>
-              <div class="table-cell" role="columnheader">Quantity</div>
-            </div>
-          </div>
+<div class="table-header" role="rowgroup">
+<div class="table-row table-head" role="row">
+<div class="table-cell" role="columnheader">Product Name</div>
+<div class="table-cell" role="columnheader">Batch ID</div>
+<div class="table-cell" role="columnheader">Category</div>
+<div class="table-cell" role="columnheader">Added Date</div>
+<div class="table-cell" role="columnheader">Expiry Date</div>
+<div class="table-cell" role="columnheader">₹/unit</div>
+<div class="table-cell" role="columnheader">Quantity</div>
+</div>
+</div>
 
-          <div class="table-body" role="rowgroup" id="product-table-body">
-            <!-- Rows inserted by JS -->
-          </div>
+<div class="table-body" role="rowgroup" id="product-table-body">
+<!-- Rows inserted by JS -->
+</div>
 
-        </div>
-      </div>
+</div>
+</div>
 
-    </div>
-  </div>
+</div>
+</div>
 
-  <!-- Duplicate Product Popup -->
+<!-- Duplicate Product Popup -->
 <div class="popup-overlay" id="popup-overlay"></div>
 <div id="popup" class="card">
-  <span class="emoji">⚠️</span>
-  <span class="title">Product Exists</span>
-  <p class="description" id="popup-description">
-    This product is already scanned. Do you want to remove it?
-  </p>
-  <div class="actions">
-    <button class="decline" onclick="closeDuplicatePopup()">No</button>
-    <button class="valid" onclick="openPurchaseForm()">Yes</button>
-  </div>
+<span class="emoji">⚠️</span>
+<span class="title">Product Exists</span>
+<p class="description" id="popup-description">
+This product is already scanned. Do you want to remove it?
+</p>
+<div class="actions">
+<button class="decline" onclick="closeDuplicatePopup()">No</button>
+<button class="valid" onclick="openPurchaseForm()">Yes</button>
+</div>
 </div>
 
 <!-- Purchase Form Popup -->
 <div class="popup-overlay" id="purchase-popup-overlay"></div>
-<div id="purchase-popup" class="card" style="width: 400px; max-width: 90%;">
-  <span class="emoji">🛒</span>
-  <span class="title">Inventory Stock Outs</span>
-  <form id="purchase-form" onsubmit="makePurchase(event)">
-    
-    <label>Purchaser Name *</label>
-    <input type="text" id="buyer-name" required>
+<div id="purchase-popup" class="card">
+<span class="emoji">🛒</span>
+<span class="title">Inventory Stock Outs</span>
+<form id="purchase-form" onsubmit="makePurchase(event)">
+<label>Purchaser Name *</label>
+<input type="text" id="buyer-name" required>
+<label>Contact No. *</label>
+<input type="tel" id="buyer-contact" required>
+<label>Email</label>
+<input type="email" id="buyer-email" placeholder="buyer@example.com" optional>
 
-    <label>Contact No. *</label>
-    <input type="tel" id="buyer-contact" required>
+<label>Product</label>
+<input type="text" id="purchase-product-name" disabled>
+<label>Quantity *</label>
+<div class="quantity-container">
+<input type="number" id="purchase-quantity" min="1" value="1" required oninput="updateFinalTotal()">
+<small id="remaining-stock" style="font-size:0.85rem; color:#666;">Remaining: --</small>
+</div>
+<label>Discount (%)</label>
+<input type="number" id="purchase-discount" min="0" value="0" oninput="updateFinalTotal()">
+<label>Tax (%)</label>
+<input type="number" id="purchase-tax" value="0" disabled>
 
-    <label>Email (optional)</label>
-    <input type="email" id="buyer-email">
-
-    <label>Product</label>
-    <input type="text" id="purchase-product-name" disabled>
-
-    <label>Quantity *</label>
-    <div style="display:flex; align-items:center; gap:8px;">
-      <input type="number" id="purchase-quantity" min="1" value="1" required oninput="updateFinalTotal()">
-      <small id="remaining-stock" style="font-size:0.85rem; color:#666;">Remaining: --</small>
-    </div>
-
-    <label>Discount (%)</label>
-    <input type="number" id="purchase-discount" min="0" value="0" oninput="updateFinalTotal()">
-
-    <label>Tax (%)</label>
-    <input type="number" id="purchase-tax" value="0" disabled>
-
-    <div style="margin-top:10px; font-weight:bold;">
-      Final Total: ₹ <span id="final-total">0</span>
-    </div>
-
-    <div class="actions" style="margin-top:15px;">
-      <button type="button" class="decline" onclick="cancelPurchase()">Cancel Order</button>
-      <button type="submit" class="valid" id="purchase-submit">Make Purchase</button>
-    </div>
-  </form>
+<!-- Multi-product list UI -->
+<div id="multi-product-list" style="max-height:180px; overflow-y:auto; border:1px solid #ccc; padding:8px; margin:10px 0;">
 </div>
 
+<!-- Buttons -->
+<button type="button" id="add-another-product-btn" class="valid" style="width:90%; margin: 15px 0;" onclick="addAnotherProduct()">
++ Add Another Product
+</button>
+<button type="button" id="complete-multi-purchase-btn" class="valid" style="width:90%; margin:15px 0; display:none;" onclick="completeMultiPurchase()">
+Complete Transaction
+</button>
 
+<div style="margin-top:5px; font-weight:bold;">
+Final Total: ₹ <span id="final-total">0</span>
+</div>
+<div class="actions" style="margin-top:10px;">
+<button type="button" class="decline" onclick="cancelPurchase()">Cancel Order</button>
+<button type="submit" class="valid" id="purchase-submit">Make Purchase</button>
+</div>
+</form>
+</div>
 
-  <!-- Quantity Input Popup -->
-  <div class="popup-overlay" id="quantity-popup-overlay"></div>
-  <div id="quantity-popup" class="card">
-    <span class="emoji">➕</span>
-    <span class="title"> New Product </span>
-    <p class="description">Please enter quantity for this product:</p>
-    <input type="number" id="quantity-input" min="1" value="1" >
-    <div class="actions">
-      <button class="decline" onclick="cancelQuantity()">Cancel</button>
-      <button class="valid" onclick="submitQuantity()">OK</button>
-    </div>
-  </div>
-  <footer class="footer">
-    <p>© 2025 Smart Inventory System &nbsp;|&nbsp; Contact: support@example.com</p>
-  </footer>
-  <script>
-    document.cookie = "csrftoken={{ csrf_token }}";
-  </script>
-  <script src="{% static 'inventory/script.js' %}"></script>
+<!-- Quantity Input Popup -->
+<div class="popup-overlay" id="quantity-popup-overlay"></div>
+<div id="quantity-popup" class="card">
+<span class="emoji">➕</span>
+<span class="title"> New Product </span>
+<p class="description">Please enter quantity for this product:</p>
+<input type="number" id="quantity-input" min="1" value="1" >
+<div class="actions">
+<button class="decline" onclick="cancelQuantity()">Cancel</button>
+<button class="valid" onclick="submitQuantity()">OK</button>
+</div>
+</div>
+
+<footer class="footer">
+<p>© 2025 Smart Inventory System &nbsp;|&nbsp; Contact: support@example.com</p>
+</footer>
+
+<script>
+document.cookie = "csrftoken={{ csrf_token }}";
+</script>
+<script src="{% static 'inventory/script.js' %}"></script>
 </body>
 </html>

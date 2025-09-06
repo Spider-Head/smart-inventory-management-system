@@ -278,7 +278,7 @@ table tbody tr {
 }
 
 /* Centered Popup Card */
-#purchase-popup.card,
+
 #quantity-popup.card,
 #popup.card {
   position: fixed;
@@ -426,7 +426,28 @@ table tbody tr {
     -moz-appearance: textfield;
 }
 
+
+
+
 /* Premium style for labels in purchase popup */
+#purchase-popup.card{
+  position: fixed;
+  top: 53%; left: 50% ;
+  transform: translate(-50%, -50%) scale(0.98);
+  z-index: 1000;
+  min-width: 430px;
+  max-width: 320vw;
+  max-height: 80vh;
+  padding: 38px 32px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.93) 65%, rgba(220,240,255,0.95) 100%);
+  box-shadow: 0 16px 54px 0 rgba(0,0,0,0.28), 0 2px 12px 0 rgba(120,170,255,0.13);
+  border: 1.5px solid rgba(255,255,255,.5);
+  display: none;
+  opacity: 0;
+  transition: opacity 0.3s, transform 0.45s cubic-bezier(0.23,0.6,0.32,1.2);
+  overflow-y: auto;
+}
 #purchase-popup form label {
     display: block;
     margin-top: 12px;
@@ -447,8 +468,9 @@ table tbody tr {
 #purchase-popup form input[type="tel"],
 #purchase-popup form input[type="email"],
 #purchase-popup form input[type="number"] {
-    width: 80%;
+    width: 100%;
     padding: 6px 8px;
+    gap: 4px;
     font-size: 0.95rem;
     border: 1.8px solid #ccc;
     border-radius: 8px;
@@ -476,7 +498,15 @@ table tbody tr {
     cursor: not-allowed;
 }
 
+/* Make labels align properly with inputs */
+#purchase-popup form label {
+  margin: 0;
+  grid-column: auto / span 1;
+  justify-self: start;
+  font-weight: 600;
+}
 
+/* To align quantity with remaining stock side by side */
 
 #html5-qrcode-button-camera-start {
   background: linear-gradient(135deg, #A3DC9A,rgba(123, 224, 131, 0.58));
@@ -820,3 +850,97 @@ table tbody tr:nth-child(6) { animation-delay: 0.48s; }
   letter-spacing: .04em;
 }
 
+/* Ball transition state - "premium glass ball" effect */
+#purchase-popup.ball-state {
+  pointer-events: auto;            /* Now clickable */
+  min-width: 74px !important;
+  max-width: 74px !important;
+  min-height: 74px !important;
+  max-height: 74px !important;
+  width: 74px !important;
+  height: 74px !important;
+  border-radius: 50% !important;
+  box-shadow:
+    0 0 64px 8px #2575fc44,
+    0 2px 24px 0 #09097950,
+    0 1.5px 4px rgba(0,0,0,0.13);
+  opacity: 0.96 !important;
+  background:
+    radial-gradient(circle at 25% 92%, #fff7 15%, transparent 75%),
+    linear-gradient(120deg, #6a11cb 60%, #2575fc 105%);
+  border: 2.5px solid #fff6;
+  overflow: hidden !important;
+  transition:
+    min-width 0.45s cubic-bezier(.4,2,.6,1),
+    min-height 0.45s cubic-bezier(.4,2,.6,1),
+    width 0.45s cubic-bezier(.4,2,.6,1),
+    height 0.45s cubic-bezier(.4,2,.6,1),
+    border-radius 0.5s cubic-bezier(.4,2,.6,1),
+    box-shadow 0.36s cubic-bezier(.4,2,.6,1),
+    background 0.5s cubic-bezier(.4,2,.6,1),
+    opacity 0.3s cubic-bezier(.4,2,.6,1);
+  cursor: pointer;
+  z-index: 1180;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: saturate(1.1) blur(0.2px);
+  /* Fancy glass reflection overlay */
+}
+#purchase-popup.ball-state::before {
+  content: '';
+  display: block;
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  width: 60%;
+  height: 26%;
+  top: 10%; left: 15%;
+  background: linear-gradient(105deg,rgba(255,255,255,.27) 40%,rgba(255,255,255,0) 100%);
+  border-radius: 50%;
+  filter: blur(1.5px);
+  opacity: 0.78;
+}
+
+/* Animate content fade-in/fade-out smoothly */
+#purchase-popup.ball-state form {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.23s cubic-bezier(.4,2,.6,1);
+}
+
+/* Show a plus icon hovering in the ball state (optional, customizable) */
+#purchase-popup.ball-state::after {
+  content: '\2795'; /* heavy plus symbol */
+  font-family: 'Segoe UI Emoji', 'Arial Unicode MS', Arial, sans-serif;
+  color: #fff;
+  font-size: 2rem;
+  font-weight: bold;
+  z-index: 3;
+  position: absolute;
+  left: 0; right: 0; top: 0; bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 5px #0004);
+  letter-spacing: 0.09em;
+}
+
+#purchase-popup:not(.ball-state) {
+  transition:
+    min-width 0.47s cubic-bezier(.4,2,.6,1),
+    min-height 0.47s cubic-bezier(.4,2,.6,1),
+    width 0.47s cubic-bezier(.4,2,.6,1),
+    height 0.47s cubic-bezier(.4,2,.6,1),
+    border-radius 0.5s cubic-bezier(.4,2,.6,1);
+  box-shadow: 0 4px 32px #3776ea13, 0 1.5px 12px #09097911;
+  cursor: default;
+  filter: none;
+}
+
+#purchase-popup:not(.ball-state) form {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.22s cubic-bezier(.4,2,.6,1);
+}

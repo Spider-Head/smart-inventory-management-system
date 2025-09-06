@@ -355,6 +355,75 @@ def remove_product(request, pid):
 
     return JsonResponse({'error': 'Invalid request method'}, status=405)
 
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
+import json
+from django.utils.timezone import now
+from .models import Product, WarehouseStock, InventoryLog, StockMovement
+
+@csrf_exempt
+@require_POST
+def remove_multiple_products(request):
+    try:
+        data = json.loads(request.body)
+        purchaser_info = data.get('purchaser', {})
+        products = data.get('products', [])
+
+        if not products:
+            return JsonResponse({'error': "No products provided."}, status=400)
+
+        # Track overall successes and failures
+        errors = []
+        for prod in products:
+            pid = prod.get('pid')
+            qty = int(prod.get('quantity', 0))
+            if qty <= 0:
+                continue
+
+            try:
+                product = Product.objects.get(pid=pid)
+                stock = WarehouseStock.objects.get(product=product)
+
+                if stock.quantity < qty:
+                    errors.append(f"Insufficient stock for {product.name}.")
+                    continue
+
+                stock.quantity -= qty
+                if stock.quantity == 0:
+                    stock.delete()
+                else:
+                    stock.save()
+
+                InventoryLog.objects.create(product=product, action='remove', quantity=qty, timestamp=now())
+
+                StockMovement.objects.create(
+                    order_id=str(uuid.uuid4()),
+                    product=product,
+                    quantity=qty,
+                    action='remove',
+                    purchaser_name=purchaser_info.get('name', ''),
+                    contact_no=purchaser_info.get('contact', ''),
+                    email=purchaser_info.get('email', ''),
+                    amount=prod.get('price', 0) * qty,
+                    payment_status='paid',
+                    timestamp=now(),
+                )
+
+            except Product.DoesNotExist:
+                errors.append(f"Product with PID {pid} does not exist.")
+            except WarehouseStock.DoesNotExist:
+                errors.append(f"Stock for product {pid} does not exist.")
+
+        if errors:
+            return JsonResponse({'success': False, 'errors': errors})
+        else:
+            return JsonResponse({'success': True})
+
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'Invalid JSON.'}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
 # New API endpoint for stock movements

@@ -1,17 +1,59 @@
+// --- Global State ---
 const scannedPIDs = new Set();
 let currentScan = null;
 let pendingProductData = null;
 let pendingDecodedText = null;
 let currentProductPrice = 0;
-let availableQuantity = 0; // stock tracking
+let availableQuantity = 0;
+let allowCartUpdate = false;
 
-// 📌 Utility: format system date
-function getCurrentDateTimeString() {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+const currentTransaction = {
+  purchaser: { name: '', contact: '', email: '' },
+  products: [] // {pid, name, price, quantity}
+};
+
+let isFormShrunk = false;
+
+// --- State Reset Utility ---
+// --- State Reset Utility ---
+function resetPurchaseState(fullCart = false) {
+  currentScan = null;
+  currentProductPrice = 0;
+  availableQuantity = 0;
+  pendingProductData = null;
+  pendingDecodedText = null;
+
+  if (document.getElementById('purchase-product-name')) document.getElementById('purchase-product-name').value = '';
+  if (document.getElementById('purchase-quantity')) document.getElementById('purchase-quantity').value = 1;
+
+  // ✅ Clear purchaser form fields
+  if (document.getElementById('buyer-name')) document.getElementById('buyer-name').value = '';
+  if (document.getElementById('buyer-contact')) document.getElementById('buyer-contact').value = '';
+  if (document.getElementById('buyer-email')) document.getElementById('buyer-email').value = '';
+
+  if (document.getElementById('remaining-stock')) {
+    document.getElementById('remaining-stock').textContent = "Remaining: --";
+    document.getElementById('remaining-stock').style.color = "#666";
+  }
+  if (document.getElementById('final-total')) document.getElementById('final-total').textContent = '0';
+
+  if (fullCart) {
+    // ✅ Clear cart + purchaser object completely
+    currentTransaction.products = [];
+    currentTransaction.purchaser = { name: '', contact: '', email: '' };
+
+    updateMultiProductListUI();
+  }
 }
 
-// 📌 Create table row
+
+// --- Utility Functions ---
+function getCurrentDateTimeString() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+}
+
 function createProductRow(data) {
   return `
     <div class="table-row" role="row" data-id="${data.pid}">
@@ -26,20 +68,133 @@ function createProductRow(data) {
   `;
 }
 
-// 📌 Scan success handler
+function populatePurchaserFields() {
+  document.getElementById('buyer-name').value = currentTransaction.purchaser.name || '';
+  document.getElementById('buyer-contact').value = currentTransaction.purchaser.contact || '';
+  document.getElementById('buyer-email').value = currentTransaction.purchaser.email || '';
+}
+
+function savePurchaserInfo() {
+  currentTransaction.purchaser.name = document.getElementById('buyer-name').value;
+  currentTransaction.purchaser.contact = document.getElementById('buyer-contact').value;
+  currentTransaction.purchaser.email = document.getElementById('buyer-email').value;
+}
+
+// --- GSAP Animations ---
+function shrinkFormToBall() {
+  const form = document.getElementById('purchase-popup');
+  if (!form) return;
+  gsap.to(form, {
+    duration: 0.6,
+    scale: 0.2,
+    borderRadius: "50%",
+    x: window.innerWidth * 0.39,
+    y: window.innerHeight * 0.36,
+    opacity: 1,
+    ease: "power3.inOut",
+    onStart: () => { form.style.pointerEvents = 'none'; },
+    onComplete: () => { 
+      isFormShrunk = true;
+      document.querySelector('.scanner-container').classList.remove('blurred');
+      document.getElementById('purchase-popup-overlay').classList.remove('active');
+      form.classList.add('ball-mode');
+      form.style.pointerEvents = 'auto';
+      form.addEventListener('click', handleBallClickOnce, { once: true });
+    }
+  });
+}
+
+function handleBallClickOnce(e) {
+  e.stopPropagation();
+  expandBallToForm();
+}
+
+function expandBallToForm() {
+  const form = document.getElementById('purchase-popup');
+  if (!form) return;
+  gsap.to(form, {
+    duration: 0.6,
+    scale: 1,
+    borderRadius: "16px",
+    x: 0, y: 0,
+    opacity: 1,
+    ease: "power3.inOut",
+    onStart: () => { form.style.pointerEvents = 'auto'; },
+    onComplete: () => { 
+      isFormShrunk = false; 
+      form.classList.remove('ball-mode');
+      form.removeEventListener('click', handleBallClickOnce, false);
+    }
+  });
+  document.querySelector('.scanner-container').classList.remove('blurred');
+}
+
+// --- Cart Product Management, Cart UI ---
+function addOrUpdateProduct(pid, name, price, quantity) {
+  const idx = currentTransaction.products.findIndex(p => p.pid === pid);
+  if (idx >= 0) {
+    currentTransaction.products[idx].quantity = quantity;
+    currentTransaction.products[idx].price = price;
+  } else {
+    currentTransaction.products.push({ pid, name, price, quantity });
+  }
+  updateMultiProductListUI();
+}
+
+function updateMultiProductListUI() {
+  const container = document.getElementById('multi-product-list');
+  if (!container) return;
+  container.innerHTML = '';
+  currentTransaction.products.forEach(prod => {
+    const div = document.createElement('div');
+    div.textContent = `${prod.name} | Qty: ${prod.quantity} | ₹${(prod.price*prod.quantity).toFixed(2)}`;
+    div.style.padding = '4px 0';
+    container.appendChild(div);
+  });
+}
+
+// --- Add Another Product ---
+function addAnotherProduct(event) {
+  if (event) event.preventDefault();
+  saveCurrentProductFromForm();
+  savePurchaserInfo();
+  shrinkFormToBall();
+  // Next scanned product will be added by submitQuantity()
+  console.log("Ready for next product scan.");
+}
+
+function saveCurrentProductFromForm() {
+  if (!currentScan) {
+    console.log('No current scan; skipping save to cart');
+    return; // Prevent adding on invalid/no selection
+  } // Guard: don't add anything if no valid scan!
+  const name = document.getElementById("purchase-product-name").value;
+  const qty = parseInt(document.getElementById("purchase-quantity").value) || 1;
+  addOrUpdateProduct(currentScan, name, currentProductPrice, qty);
+  updateMultiProductListUI();
+}
+
+
+
+// --- Scan Success Handler ---
 function onScanSuccess(decodedText) {
   if (scannedPIDs.has(decodedText)) {
-    // Duplicate scan: show remove/purchase form popup
+    // Duplicate product flow
     currentScan = decodedText;
+    allowCartUpdate = false; // 🚫 block premature cart update
     fetch(`/inventory/product/${decodedText}/?dup=true`)
       .then(res => res.json())
       .then(data => {
         if (!data.error) {
+          // Show product name + ID in popup
           document.getElementById("popup-description").textContent =
             `${data.name} (${data.pid}) is already scanned. Do you want to remove it?`;
+
+          // Pre-fill form values (not yet added to cart!)
           document.getElementById("purchase-product-name").value = data.name;
           currentProductPrice = parseFloat(data.price);
           availableQuantity = data.quantity || 0;
+          document.getElementById("purchase-quantity").value = 1;
           updateFinalTotal();
         }
         togglePopup(true);
@@ -51,8 +206,9 @@ function onScanSuccess(decodedText) {
       });
 
   } else {
-    // New product scan: show quantity popup
+    // New product flow
     pendingDecodedText = decodedText;
+    allowCartUpdate = false; // 🚫 not until qty confirmed
     fetch(`/inventory/product/${decodedText}/?dup=false&preload=true`)
       .then(res => res.json())
       .then(data => {
@@ -67,33 +223,49 @@ function onScanSuccess(decodedText) {
   }
 }
 
-// 📌 Show Enter Quantity Popup
+// --- Duplicate Product: Open Form and Add to Cart if not already present ---
+function openPurchaseForm() {
+  togglePopup(false);
+  allowCartUpdate = true; // ✅ user confirmed "Yes"
+  const purchasePopup = document.getElementById("purchase-popup");
+  purchasePopup.classList.add("active");
+  document.getElementById("purchase-popup-overlay").classList.add("active");
+  document.querySelector('.scanner-container').classList.add('blurred');
+  document.getElementById("purchase-quantity").value = 1;
+  if (isFormShrunk) expandBallToForm();
+  populatePurchaserFields();
+  updateMultiProductListUI();
+  updateFinalTotal();
+}
+
+
+function closeDuplicatePopup() {
+  allowCartUpdate = false; // 🚫 don’t add to cart
+  togglePopup(false);
+}
+
+// --- Quantity Popup ---
 function showQuantityPopup() {
   document.getElementById("quantity-popup").classList.add("active");
   document.getElementById("quantity-popup-overlay").classList.add("active");
   document.querySelector('.scanner-container').classList.add('blurred');
 }
-
-// 📌 Close Quantity Popup
 function hideQuantityPopup() {
   document.getElementById("quantity-popup").classList.remove("active");
   document.getElementById("quantity-popup-overlay").classList.remove("active");
   document.querySelector('.scanner-container').classList.remove('blurred');
   document.getElementById("quantity-input").value = 1;
 }
-
-// 📌 Cancel entering quantity
 function cancelQuantity() {
   pendingProductData = null;
   pendingDecodedText = null;
   hideQuantityPopup();
 }
 
-// 📌 Submit the chosen quantity
+// --- Quantity Popup: Confirm New Product ---
 function submitQuantity() {
   const qty = parseInt(document.getElementById("quantity-input").value) || 1;
   hideQuantityPopup();
-
   fetch(`/inventory/product/${pendingDecodedText}/?dup=false&qty=${qty}`)
     .then(res => res.json())
     .then(data => {
@@ -102,12 +274,26 @@ function submitQuantity() {
         data.added_date = getCurrentDateTimeString();
         data.quantity = qty;
 
-        const rowHTML = createProductRow(data);
-        document.querySelector("#product-table-body").insertAdjacentHTML('afterbegin', rowHTML);
-
+        document.querySelector("#product-table-body").insertAdjacentHTML('afterbegin', createProductRow(data));
         const newRow = document.querySelector(`.table-row[data-id="${data.pid}"]`);
         if (newRow) {
           gsap.from(newRow, { opacity: 0, y: 20, duration: 0.6, ease: "power3.out" });
+        }
+
+        if (isFormShrunk) {
+          // ✅ Directly add to cart
+          addOrUpdateProduct(data.pid, data.name, parseFloat(data.price), qty);
+          allowCartUpdate = true;
+          populatePurchaserFields();
+          updateMultiProductListUI();
+        } else {
+          // ✅ Fill purchase form for further edits
+          currentScan = data.pid;
+          currentProductPrice = parseFloat(data.price);
+          availableQuantity = data.quantity;
+          document.getElementById("purchase-quantity").value = qty;
+          allowCartUpdate = true;
+          updateFinalTotal();
         }
       } else {
         alert("Product not found");
@@ -116,127 +302,79 @@ function submitQuantity() {
     .catch(() => alert("Error adding product."));
 }
 
-function closeDuplicatePopup() {
-  togglePopup(false);
-  currentScan = null; // clear the stored PID
-}
 
-
-// 📌 Open purchase popup instead of immediate removal
-function openPurchaseForm() {
-  togglePopup(false);
-  document.getElementById("purchase-popup").classList.add("active");
-  document.getElementById("purchase-popup-overlay").classList.add("active");
-  document.querySelector('.scanner-container').classList.add('blurred');
-  document.getElementById("purchase-quantity").value = 1;
-  updateFinalTotal();
-}
-
-// 📌 Cancel purchase
-function cancelPurchase() {
-  document.getElementById("purchase-popup").classList.remove("active");
-  document.getElementById("purchase-popup-overlay").classList.remove("active");
-  document.querySelector('.scanner-container').classList.remove('blurred');
-}
-
-// 📌 Update total amount & remaining stock
+// --- Final Total & Cart/Stock Synchronization ---
 function updateFinalTotal() {
-  const qty = parseInt(document.getElementById("purchase-quantity").value) || 1;
+  const qtyInput = document.getElementById("purchase-quantity");
+  const qty = parseInt(qtyInput.value) || 1;
   const discount = parseFloat(document.getElementById("purchase-discount").value) || 0;
   const tax = parseFloat(document.getElementById("purchase-tax").value) || 0;
 
-  let subtotal = qty * currentProductPrice;
+  // ✅ Add/update only if explicitly allowed
+  if (allowCartUpdate && currentScan && document.getElementById("purchase-popup").classList.contains("active")) {
+    addOrUpdateProduct(
+      currentScan,
+      document.getElementById("purchase-product-name").value,
+      currentProductPrice,
+      qty
+    );
+  }
+
+  let subtotal = currentTransaction.products.reduce((sum, p) => sum + p.quantity * p.price, 0);
   let discountAmt = subtotal * (discount / 100);
   let taxAmt = (subtotal - discountAmt) * (tax / 100);
   let finalTotal = subtotal - discountAmt + taxAmt;
-
   document.getElementById("final-total").textContent = finalTotal.toFixed(2);
 
-  // Remaining stock logic
   const remStockEl = document.getElementById("remaining-stock");
-  if (remStockEl) {
-    const remaining = availableQuantity - qty;
-    remStockEl.textContent = `Remaining: ${remaining}`;
-    if (remaining < 0) {
-      remStockEl.style.color = "red";
-      document.getElementById("purchase-submit").disabled = true;
-    } else {
-      remStockEl.style.color = "#28a745";
-      document.getElementById("purchase-submit").disabled = false;
-    }
-  }
+  let remaining = availableQuantity - qty;
+  remStockEl.textContent = `Remaining: ${remaining}`;
+  remStockEl.style.color = remaining < 0 ? "red" : "#28a745";
+  document.getElementById("purchase-submit").disabled = (remaining < 0);
 }
 
-// 📌 Make purchase & remove stock
+
+
+// --- Make Purchase ---
 function makePurchase(e) {
   e.preventDefault();
-
-  const qty = parseInt(document.getElementById("purchase-quantity").value) || 1;
-  const discount = parseFloat(document.getElementById("purchase-discount").value) || 0;
-  const tax = parseFloat(document.getElementById("purchase-tax").value) || 0;
-
-  // Calculate final total amount again here to ensure accuracy
-  let subtotal = qty * currentProductPrice;
-  let discountAmt = subtotal * (discount / 100);
-  let taxAmt = (subtotal - discountAmt) * (tax / 100);
-  let finalTotal = subtotal - discountAmt + taxAmt;
-
-  fetch(`/inventory/remove/${currentScan}/`, {
-    method: "POST",
-    headers: { 'X-CSRFToken': getCookie('csrftoken') },
-    body: JSON.stringify({
-      purchaser: document.getElementById("buyer-name").value,
-      contact: document.getElementById("buyer-contact").value,
-      email: document.getElementById("buyer-email").value,
-      quantity: qty,
-      discount: discount,
-      amount: finalTotal.toFixed(2),  // send the amount here
-      payment_status: "paid"          // optionally include this if needed
-    })
-  })
-  .then(res => res.json())
-  .then(data => {
-    const row = document.querySelector(`.table-row[data-id="${currentScan}"]`);
-    if (data.quantity !== undefined) {
-      if (data.quantity > 0) {
-        if (row) {
-          const qtyCell = row.querySelector('.table-cell[data-label="Quantity"]');
-          if (qtyCell) qtyCell.textContent = data.quantity;
-        }
-      } else {
-        if (row) row.remove();
-        scannedPIDs.delete(currentScan);
-      }
-    } else {
-      alert(data.error || "Unexpected error");
-    }
-  })
-  .catch(err => {
-    console.error("Purchase error:", err);
-    alert("Server error. Try again.");
-  });
-
-  cancelPurchase();
-  currentScan = null;
-}
-
-
-// 📌 Get CSRF
-function getCookie(name) {
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== '') {
-    for (let cookie of document.cookie.split(';')) {
-      const trimmed = cookie.trim();
-      if (trimmed.startsWith(name + '=')) {
-        cookieValue = decodeURIComponent(trimmed.substring(name.length + 1));
-        break;
-      }
-    }
+  saveCurrentProductFromForm();
+  savePurchaserInfo();
+  if (!currentTransaction.products.length) {
+    alert("No product(s) to purchase.");
+    return;
   }
-  return cookieValue;
+
+  fetch('/inventory/remove_multiple/', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
+    body: JSON.stringify(currentTransaction)
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        alert('Transaction completed successfully!');
+        resetPurchaseState(true);
+        cancelPurchase();
+      } else {
+        alert(data.error || 'Failed to complete transaction.');
+      }
+    })
+    .catch(() => alert('Server error. Please try again.'));
 }
 
-// 📌 Toggle popup
+// --- CSRF ---
+function getCookie(name) {
+  let value = null;
+  if (document.cookie && document.cookie !== '') {
+    document.cookie.split(';').forEach(cookie => {
+      let [key,val] = cookie.trim().split('=');
+      if (key === name) value = decodeURIComponent(val);
+    });
+  }
+  return value;
+}
+
 function togglePopup(show) {
   const popup = document.getElementById('popup');
   const overlay = document.getElementById('popup-overlay');
@@ -251,8 +389,15 @@ function togglePopup(show) {
     background.classList.remove('blurred');
   }
 }
+function cancelPurchase() {
+  document.getElementById("purchase-popup").classList.remove("active");
+  document.getElementById("purchase-popup-overlay").classList.remove("active");
+  document.querySelector('.scanner-container').classList.remove('blurred');
+  if (isFormShrunk) expandBallToForm();
+  resetPurchaseState(true);
+}
 
-// 📌 Load stock on page load
+// --- Initialization ---
 window.addEventListener("DOMContentLoaded", () => {
   fetch("/inventory/warehouse/")
     .then(res => res.json())
@@ -264,16 +409,9 @@ window.addEventListener("DOMContentLoaded", () => {
         document.querySelector("#product-table-body").insertAdjacentHTML('beforeend', rowHTML);
       });
     })
-    .catch(err => console.error("Failed to load initial data:", err));
-});
-
-// 📌 QR Scanner init
-new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 }).render(onScanSuccess);
-
-// 📌 Animate UI
-document.addEventListener('DOMContentLoaded', () => {
-  gsap.from('.scanner-card', { y: 40, opacity: 0, stagger: 0.15, duration: 0.7, ease: "power3.out" });
-  gsap.from('.table-container', { y: 40, opacity: 0, duration: 0.7, delay: 0.5, ease: "power3.out" });
+    .catch(() => {});
+  new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 }).render(onScanSuccess);
+  animateTableRows();
 });
 
 function animateTableRows() {
@@ -282,3 +420,5 @@ function animateTableRows() {
   gsap.from(rows, { opacity: 0, y: 15, stagger: 0.1, duration: 0.5, ease: 'power3.out' });
 }
 window.addEventListener("DOMContentLoaded", animateTableRows);
+
+

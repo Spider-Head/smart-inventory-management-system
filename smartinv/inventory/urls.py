@@ -27,8 +27,8 @@ urlpatterns = [
     path('api/rename-shelf/', views.rename_shelf_api, name='rename_shelf_api'),
     path('api/rename-rack/', views.rename_rack_api, name='rename_rack_api'),
 
-    # Stock movements pages and APIs
-    # Stock movements pages and APIs
+    path('remove_multiple/', views.remove_multiple_products, name='remove_multiple'),
+
     # Stock movements pages and APIs
     path('stock_movements/', views.stock_movements_list, name='stock_movements_list'),
     path('stock_movements_page/', views.stock_movements_page_view, name='stock_movements_page'),
