@@ -16,8 +16,7 @@ Feature	Description
 📱 Mobile Friendly UI with Hamburger Navigation	Works on all screen sizes with smooth transitions and animations.
 
 # 📁 Project Structure
-
-![Project Structure] 
+ 
 smart-inventory/  
 │  
 ├── inventory/  
