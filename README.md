@@ -16,27 +16,30 @@ Feature	Description
 📱 Mobile Friendly UI with Hamburger Navigation	Works on all screen sizes with smooth transitions and animations.
 
 # 📁 Project Structure
-smart-inventory/
-│
-├── inventory/
-│ ├── models.py # Database Models (Products, Categories, Suppliers, etc.)
-│ ├── views.py # View Logic for Dashboard & Scanner
-│ ├── urls.py # Routing
-│ ├── templates/
-│ │ ├── inventory/
-│ │ │ ├── dashboard.html
-│ │ │ ├── navbar.html
-│ │ │ ├── scan.html
-│ │ │ └── add_product.html
-│ ├── static/
-│ │ ├── inventory/
-│ │ │ ├── styles.css
-│ │ │ ├── navbar.css
-│ │ │ └── dashboard.js
-│ └── ...
-│
-├── manage.py
-└── README.md
+
+![Project Structure] 
+smart-inventory/  
+│  
+├── inventory/  
+│   ├── models.py        # Database Models (Products, Categories, Suppliers, etc.)  
+│   ├── views.py         # View Logic for Dashboard & Scanner  
+│   ├── urls.py          # Routing  
+│   ├── templates/  
+│   │   ├── inventory/  
+│   │   │   ├── dashboard.html  
+│   │   │   ├── navbar.html  
+│   │   │   ├── scan.html  
+│   │   │   └── add_product.html  
+│   ├── static/  
+│   │   ├── inventory/  
+│   │   │   ├── styles.css  
+│   │   │   ├── navbar.css  
+│   │   │   └── dashboard.js  
+│   └── ...  
+│  
+├── manage.py  
+└── README.md  
+
 
 # 🧠 How It Works
 
