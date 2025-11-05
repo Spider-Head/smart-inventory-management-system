@@ -62,3 +62,10 @@ smart-inventory/
 ## Predicted stockout items
 
 ## Visual charts show consumption trends to support reorder decisions.
+
+# 💡 Why This System is Unique
+
+✔ Simplifies inventory tracking for small to mid-sized businesses
+✔ Focuses on expiry-awareness — a real problem in medicine, cosmetics, and food industries
+✔ Intelligent daily usage insights instead of just static records
+✔ Modern, clean, mobile-friendly UI
