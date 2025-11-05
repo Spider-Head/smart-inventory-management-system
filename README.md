@@ -1,9 +1,9 @@
-#🏪 Smart Inventory Management System
+# 🏪 Smart Inventory Management System
 
 An innovative, efficient, and intelligent solution to traditional inventory and warehouse challenges.
 This system provides real-time stock tracking, expiry alerts, supplier management, and consumption analytics, enabling businesses to make faster and smarter inventory decisions.
 
-#🚀 Key Features
+# 🚀 Key Features
 Feature	Description
 📦 Add & Manage Products	Easily add products with details like category, quantity, MRP, expiry, and supplier info.
 🔍 Smart Product Scanner	Scan product barcodes/QR codes to search and update inventory instantly.
@@ -15,49 +15,49 @@ Feature	Description
 🔐 Role-based Access (Admin Panel)	Easily manage data through Django Admin.
 📱 Mobile Friendly UI with Hamburger Navigation	Works on all screen sizes with smooth transitions and animations.
 
-#📁 Project Structure
+# 📁 Project Structure
 smart-inventory/
 │
 ├── inventory/
-│   ├── models.py        # Database Models (Products, Categories, Suppliers, etc.)
-│   ├── views.py         # View Logic for Dashboard & Scanner
-│   ├── urls.py          # Routing
-│   ├── templates/
-│   │   ├── inventory/
-│   │   │   ├── dashboard.html
-│   │   │   ├── navbar.html
-│   │   │   ├── scan.html
-│   │   │   └── add_product.html
-│   ├── static/
-│   │   ├── inventory/
-│   │   │   ├── styles.css
-│   │   │   ├── navbar.css
-│   │   │   └── dashboard.js
-│   └── ...
+│ ├── models.py # Database Models (Products, Categories, Suppliers, etc.)
+│ ├── views.py # View Logic for Dashboard & Scanner
+│ ├── urls.py # Routing
+│ ├── templates/
+│ │ ├── inventory/
+│ │ │ ├── dashboard.html
+│ │ │ ├── navbar.html
+│ │ │ ├── scan.html
+│ │ │ └── add_product.html
+│ ├── static/
+│ │ ├── inventory/
+│ │ │ ├── styles.css
+│ │ │ ├── navbar.css
+│ │ │ └── dashboard.js
+│ └── ...
 │
 ├── manage.py
 └── README.md
 
-#🧠 How It Works
+# 🧠 How It Works
 
-User scans or searches for a product.
+## User scans or searches for a product.
 
-System retrieves product details and tracks:
+## System retrieves product details and tracks:
 
-Stock Levels
+## Stock Levels
 
-Expiry Date
+## Expiry Date
 
-Supplier Information
+## Supplier Information
 
-Dashboard highlights:
+## Dashboard highlights:
 
-Expiring products
+## Expiring products
 
-Low stock items
+## Low stock items
 
-Expired inventory
+## Expired inventory
 
-Predicted stockout items
+## Predicted stockout items
 
-Visual charts show consumption trends to support reorder decisions.
+## Visual charts show consumption trends to support reorder decisions.
