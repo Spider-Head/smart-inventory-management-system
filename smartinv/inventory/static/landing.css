@@ -49,7 +49,7 @@ body {
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 44px;
+  gap: 54px;
   padding: 66px 64px 66px 60px;
   margin: 0 16px;
   animation: fadeInGlass 1.2s cubic-bezier(.21,1,.7,1) both;
@@ -780,29 +780,7 @@ h2::after {
   margin-bottom: 0;
 }
 
-/* Unique, modern animated "tick" gradient icon per item */
-.why-us li::before {
-  content: "";
-  display: inline-block;
-  min-width: 22px;
-  min-height: 22px;
-  background: linear-gradient(135deg,#6a11cb 45%,#2575fc 90%);
-  border-radius: 50%;
-  margin-right: 20px;
-  position: relative;
-  box-shadow:
-    0 2px 11px #2575fc44,
-    0 0.5px 8px #6a11cb28;
-  flex-shrink: 0;
-  transition: box-shadow 0.22s, transform 0.19s;
-  z-index: 2;
-  animation: pulse-flare 2.4s cubic-bezier(.7,0,.3,1) infinite;
-}
-/* Animated pulse effect */
-@keyframes pulse-flare {
-  0%,100% { box-shadow: 0 2px 13px #2575fc44, 0 0.5px 8px #6a11cb28; }
-  50%     { box-shadow: 0 0 35px 5px #6a11cb33, 0 6px 12px #2575fc22; }
-}
+
 
 /* Add a big checkmark tick inside the icon bubble */
 .why-us li::after {

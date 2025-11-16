@@ -545,21 +545,68 @@ from .utils import (
     get_expired_products
 )
 
+import os
+import json
+from django.conf import settings
+from django.shortcuts import render
+from inventory.models import Product
+from .utils import (
+    get_consumption_chart_json,
+    get_about_to_expire_products,
+    get_low_or_zero_stock,
+    get_least_stock_category,
+    predict_stockouts,
+    get_expired_products
+)
 
 def dashboard_view(request):
+    # ----------------------------------------
+    # 1. Existing consumption chart data
+    # ----------------------------------------
     consumption_data = get_consumption_chart_json()
     consumption_data_json = json.dumps(consumption_data) if consumption_data else None
 
+    # ----------------------------------------
+    # 2. Load Prophet Forecast (JSON)
+    # ----------------------------------------
+    forecast_path = os.path.join(
+        settings.BASE_DIR,
+        "inventory",
+        "prophet_models",
+        "forecast.json"
+    )
+
+    if os.path.exists(forecast_path):
+        try:
+            with open(forecast_path, "r") as f:
+                prophet_forecast = json.load(f)
+        except Exception:
+            prophet_forecast = []
+    else:
+        prophet_forecast = []
+
+    # ----------------------------------------
+    # 3. Build final context (including product list!)
+    # ----------------------------------------
     context = {
         "about_to_expire": get_about_to_expire_products(),
         "low_stock": get_low_or_zero_stock(),
         "least_category": get_least_stock_category(),
         "predicted_outs": predict_stockouts(),
-        "chart_data_json": consumption_data_json,  # <-- pass this instead of base64
+        "chart_data_json": consumption_data_json,
         "expired_products": get_expired_products(),
+
+        # ⬇ REQUIRED FOR DROPDOWN ⬇
+        "products": Product.objects.all(),
+
+        # ⬇ REQUIRED FOR PROPHET FORECAST CHART ⬇
+        "prophet_forecast": prophet_forecast,
+
         "active_page": "dashboard"
     }
+
     return render(request, "inventory/dashboard.html", context)
+
 
 
 from django.views.decorators.csrf import csrf_exempt
@@ -680,3 +727,75 @@ def get_latest_sensor_data(request):
         'liquid_leak_detected': latest.liquid_leak_detected,
         'timestamp': latest.timestamp
     })
+
+
+
+
+
+from django.http import JsonResponse
+import pandas as pd
+import json
+from .models import SensorData, Product
+import os
+
+def get_prophet_predictions(request):
+    model_dir = os.path.join(os.getcwd(), "inventory", "prophet_models")
+
+    results = {}
+
+    for model_file in os.listdir(model_dir):
+        if model_file.endswith("_model.json"):
+            pid = model_file.replace("_model.json", "")
+            try:
+                model_path = os.path.join(model_dir, model_file)
+                with open(model_path, "r") as f:
+                    model_data = json.load(f)
+
+                future = model_data["future"]
+                forecast = model_data["forecast"]
+
+                results[pid] = {
+                    "future_dates": future,
+                    "forecast_values": forecast
+                }
+            except Exception as e:
+                results[pid] = {"error": str(e)}
+
+    return JsonResponse(results, safe=False)
+
+
+import os
+import joblib
+import pandas as pd
+from django.http import JsonResponse
+from prophet import Prophet
+from inventory.models import Product
+
+MODEL_DIR = os.path.join('inventory', 'prophet_models')
+
+def get_forecast(request, pid):
+    model_path = os.path.join(MODEL_DIR, f"{pid}.pkl")
+
+    if not os.path.exists(model_path):
+        return JsonResponse({"error": "No model found"}, status=404)
+
+    # Load model
+    model = joblib.load(model_path)
+
+    # Make future dataframe
+    future = model.make_future_dataframe(periods=30)  # forecast 30 days
+    forecast = model.predict(future)
+
+    # Convert to JSON-friendly dict
+    df = forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].tail(30)
+
+    rows = []
+    for _, row in df.iterrows():
+        rows.append({
+            "date": row['ds'].strftime('%Y-%m-%d'),
+            "prediction": float(row['yhat']),
+            "lower": float(row['yhat_lower']),
+            "upper": float(row['yhat_upper']),
+        })
+
+    return JsonResponse({"pid": pid, "forecast": rows})

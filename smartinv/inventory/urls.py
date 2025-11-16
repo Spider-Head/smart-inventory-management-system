@@ -42,7 +42,9 @@ urlpatterns = [
     path('api/iot-data/', views.receive_iot_data, name='receive_iot_data'),
     path('monitoring/', views.inventory_monitoring_page, name='inventory_monitoring_page'),
     path('api/get-latest-sensor-data/', views.get_latest_sensor_data, name='get_latest_sensor_data'),
-    
+    path("api/predictions/", views.get_prophet_predictions, name="get_prophet_predictions"),
+    path("api/forecast/<str:pid>/", views.get_forecast, name="forecast"),
+
 
 
 ]

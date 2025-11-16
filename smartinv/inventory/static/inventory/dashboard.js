@@ -643,3 +643,46 @@ document.addEventListener('DOMContentLoaded', () => {
     alert('Reorder request sent!'); // Placeholder
   });
 });
+
+document.getElementById("forecastSelect").addEventListener("change", function() {
+    let pid = this.value;
+    if (!pid) return;
+
+    fetch(`/inventory/api/forecast/${pid}/`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.error) {
+                alert("No forecast available for this product.");
+                return;
+            }
+
+            let dates = data.forecast.map(x => x.date);
+            let yhat = data.forecast.map(x => x.prediction);
+
+            Plotly.newPlot("forecastChart", [{
+                x: dates,
+                y: yhat,
+                mode: "lines",
+                name: "Predicted Usage"
+            }], {
+                title: `Forecast for ${pid}`,
+                xaxis: { title: "Date" },
+                yaxis: { title: "Predicted Usage" }
+            });
+        });
+});
+
+// Animate forecast chart fade-in
+function fadeInForecast() {
+    const chart = document.getElementById("forecastChart");
+    if (chart) {
+        chart.style.opacity = 0;
+        setTimeout(() => {
+            chart.style.transition = "opacity 0.8s ease";
+            chart.style.opacity = 1;
+        }, 50);
+    }
+}
+
+document.getElementById("forecastSelect").addEventListener("change", fadeInForecast);
+

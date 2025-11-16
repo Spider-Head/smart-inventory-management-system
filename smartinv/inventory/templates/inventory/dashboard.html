@@ -239,6 +239,37 @@
   </form>
 </div>
 
+<!-- ============================
+     MODERN FORECAST CONTAINER
+     ============================ -->
+<section class="forecast-container">
+    <h2 class="forecast-heading">📈 30-Day Demand Forecast</h2>
+
+    <div class="forecast-box">
+        
+        <div class="forecast-field">
+            <label class="forecast-label">Select Product</label>
+            
+            <div class="forecast-select-wrapper">
+                <select id="forecastSelect" class="forecast-select">
+                    <option value="">Choose a product...</option>
+                    {% for p in products %}
+                        <option value="{{ p.pid }}">{{ p.name }} ({{ p.pid }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="forecast-chart-wrapper">
+            <div id="forecastChart"></div>
+        </div>
+    </div>
+</section>
+
+
+
+
+
       <!-- Consumption Chart - Full width in grid -->
 
       <div class="graph-card graph-card2" aria-label="Consumption chart">
@@ -266,6 +297,8 @@
     <p>© 2025 Smart Inventory System &nbsp;|&nbsp; Contact: support@example.com</p>
   </footer>
   <!-- Vendor and App JS -->
+  
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollToPlugin.min.js"></script>
   <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>

@@ -150,3 +150,19 @@ class SensorData(models.Model):
 
     def __str__(self):
         return f"Temp: {self.temperature}°C | Humidity: {self.humidity}% at {self.timestamp}"
+
+
+from django.db import models
+from django.utils import timezone
+
+class DailyUsage(models.Model):
+    product = models.ForeignKey("Product", on_delete=models.CASCADE)
+    date = models.DateField(default=timezone.now)
+    quantity_used = models.FloatField(default=0)
+
+    class Meta:
+        unique_together = ('product', 'date')
+        ordering = ['-date']
+
+    def __str__(self):
+        return f"{self.product.name} - {self.date} - {self.quantity_used}"
