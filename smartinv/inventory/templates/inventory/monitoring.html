@@ -1,0 +1,100 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Environment Monitoring | Smart Inventory</title>
+  <link rel="stylesheet" href="{% static 'monitoring.css' %}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  {% include 'inventory/navbar.html' %}
+
+  <div class="clouds"></div>
+
+  <section class="monitoring-section">
+    <div class="monitoring-header glass">
+      <h1>🌦 Environment Monitoring Dashboard</h1>
+      <p>Track real-time Temperature, Humidity & Gas Levels with live visualization</p>
+    </div>
+
+    <div class="sensor-cards">
+      <div class="sensor-card temp-card glass">
+        <h2>Temperature</h2>
+        <p id="temperature" class="sensor-value">-- °C</p>
+      </div>
+      <div class="sensor-card humidity-card glass">
+        <h2>Humidity</h2>
+        <p id="humidity" class="sensor-value">-- %</p>
+      </div>
+      <div class="sensor-card gas-card glass">
+        <h2>Gas / Leak</h2>
+        <p id="gas-status" class="sensor-value safe">Safe</p>
+      </div>
+    </div>
+
+    <div class="chart-container glass">
+      <h3>Live Temperature & Humidity Chart</h3>
+      <canvas id="sensorChart"></canvas>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p>© 2025 Smart Inventory System &nbsp;|&nbsp; Contact: support@example.com</p>
+</footer>
+
+  <script>
+    const tempDisplay = document.getElementById('temperature');
+    const humDisplay = document.getElementById('humidity');
+    const gasDisplay = document.getElementById('gas-status');
+
+    const ctx = document.getElementById('sensorChart').getContext('2d');
+    const sensorChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [
+          { label: 'Temperature (°C)', borderColor: '#fb7185', data: [], fill: false },
+          { label: 'Humidity (%)', borderColor: '#60a5fa', data: [], fill: false }
+        ]
+      },
+      options: {
+        responsive: true,
+        scales: { y: { beginAtZero: true } },
+        plugins: { legend: { labels: { color: '#fff' } } }
+      }
+    });
+
+    async function fetchSensorData() {
+      try {
+        const res = await fetch('/inventory/api/get-latest-sensor-data/');
+        if (!res.ok) return;
+        const data = await res.json();
+
+        tempDisplay.textContent = `${data.temperature} °C`;
+        humDisplay.textContent = `${data.humidity} %`;
+
+        if (data.liquid_leak_detected) {
+          gasDisplay.textContent = '⚠ Leak Detected!';
+          gasDisplay.classList.add('alert');
+          gasDisplay.classList.remove('safe');
+        } else {
+          gasDisplay.textContent = 'Safe';
+          gasDisplay.classList.add('safe');
+          gasDisplay.classList.remove('alert');
+        }
+
+        const time = new Date(data.timestamp).toLocaleTimeString();
+        sensorChart.data.labels.push(time);
+        sensorChart.data.datasets[0].data.push(data.temperature);
+        sensorChart.data.datasets[1].data.push(data.humidity);
+        sensorChart.update();
+      } catch (e) {
+        console.log("Error fetching data:", e);
+      }
+    }
+
+    setInterval(fetchSensorData, 5000);
+  </script>
+</body>
+</html>

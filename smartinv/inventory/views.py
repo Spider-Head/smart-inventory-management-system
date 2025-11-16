@@ -629,3 +629,54 @@ Automated Inventory Notification
         return JsonResponse({'error': 'Invalid JSON payload'}, status=400)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+    
+
+
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from .models import SensorData
+import json
+
+@csrf_exempt
+def receive_iot_data(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            temperature = data.get('temperature')
+            humidity = data.get('humidity')
+            gas_level = data.get('gas_level')
+            leak = data.get('leak', False)
+
+            SensorData.objects.create(
+                temperature=temperature,
+                humidity=humidity,
+                gas_level=gas_level,
+                liquid_leak_detected=leak
+            )
+
+            return JsonResponse({'status': 'success'}, status=200)
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+
+from django.shortcuts import render
+
+def inventory_monitoring_page(request):
+    return render(request, 'inventory/monitoring.html', {'active_page': 'monitoring'})
+
+
+from django.http import JsonResponse
+
+def get_latest_sensor_data(request):
+    latest = SensorData.objects.order_by('-timestamp').first()
+    if not latest:
+        return JsonResponse({'error': 'No data yet'}, status=404)
+    return JsonResponse({
+        'temperature': latest.temperature,
+        'humidity': latest.humidity,
+        'gas_level': latest.gas_level,
+        'liquid_leak_detected': latest.liquid_leak_detected,
+        'timestamp': latest.timestamp
+    })

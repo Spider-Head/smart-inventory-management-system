@@ -37,5 +37,12 @@ urlpatterns = [
     # API endpoint to update payment status of a stock movement
     path('api/update-payment-status/<str:order_id>/', views.update_payment_status_api, name='update_payment_status_api'),
     
+    
+    # existing routes...
+    path('api/iot-data/', views.receive_iot_data, name='receive_iot_data'),
+    path('monitoring/', views.inventory_monitoring_page, name='inventory_monitoring_page'),
+    path('api/get-latest-sensor-data/', views.get_latest_sensor_data, name='get_latest_sensor_data'),
+    
+
 
 ]

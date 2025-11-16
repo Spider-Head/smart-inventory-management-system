@@ -133,3 +133,20 @@ class StockMovement(models.Model):
 
     def __str__(self):
         return f"{self.order_id} - {self.product.name} ({self.action})"
+
+
+from django.db import models
+from django.utils.timezone import now
+
+class SensorData(models.Model):
+    temperature = models.FloatField()
+    humidity = models.FloatField()
+    gas_level = models.FloatField(null=True, blank=True)  # optional for future use
+    liquid_leak_detected = models.BooleanField(default=False)
+    timestamp = models.DateTimeField(default=now)
+
+    class Meta:
+        ordering = ['-timestamp']
+
+    def __str__(self):
+        return f"Temp: {self.temperature}°C | Humidity: {self.humidity}% at {self.timestamp}"
